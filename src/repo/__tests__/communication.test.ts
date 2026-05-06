@@ -1,10 +1,10 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 import {
   getCommunicationsByContract,
   createCommunication,
   markCommunicationOpened,
 } from "@/repo/communication";
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
 jest.mock("@/repo/supabase-server", () => ({
   createServerSupabaseClient: jest.fn(),
 }));

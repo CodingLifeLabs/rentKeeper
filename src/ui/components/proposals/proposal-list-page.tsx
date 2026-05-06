@@ -1,6 +1,7 @@
 "use client";
+/* eslint-disable react-hooks/set-state-in-effect */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Plus, Loader2, ChevronLeft } from "lucide-react";
 import { Button } from "@/ui/components/ui/button";
 import { Card, CardContent } from "@/ui/components/ui/card";
@@ -26,23 +27,22 @@ export function ProposalListPage({ contract, onBack }: ProposalListPageProps) {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
 
-  async function loadProposals() {
+  const fetchProposals = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch(`/api/proposals?contractId=${contract.id}`);
       if (res.ok) {
         const data = await res.json();
-        setProposals(data);
+        setProposals(data as RenewalProposal[]);
       }
     } finally {
       setLoading(false);
     }
-  }
+  }, [contract.id]);
 
   useEffect(() => {
-    loadProposals();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contract.id]);
+    void fetchProposals();
+  }, [fetchProposals]);
 
   return (
     <div className="space-y-6">
@@ -69,7 +69,7 @@ export function ProposalListPage({ contract, onBack }: ProposalListPageProps) {
           contract={contract}
           onSubmitted={() => {
             setShowForm(false);
-            loadProposals();
+            void fetchProposals();
           }}
           onCancel={() => setShowForm(false)}
         />
