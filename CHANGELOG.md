@@ -2,7 +2,7 @@
 
 ## [0.4.0] - 2026-05-06
 
-### Added (Sprint 4)
+### Added (Sprint 4) — EVALUATOR PASS
 - Dashboard 계약 목록: 만기 임박 계약에 "갱신 제안서 발송" 버튼
 - DashboardContractCard: 계약 카드 컴포넌트 (상태 배지, 제안서 버튼)
 - 제안서 발송 API: /api/proposals POST (임차인명/월세 자동 입력)
