@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.3.0] - 2026-05-06
+
+### Added (Sprint 2)
+- OCR 파이프라인: 타입 정의 + mock OCR 서비스 (PaddleOCR 교체 가능 구조)
+- 계약서 업로드 UI: 드래그앤드롭, 파일 타입/크기 검증, 미리보기
+- OCR 리뷰 폼: 필드별 신뢰도 표시, 수동 수정, 특약 메모
+- 계약 등록 API: /api/ocr (이미지→OCR), /api/contracts (계약 생성)
+- Property CRUD repo: getPropertiesByLandlord, getPropertyById, createProperty
+- 계약 등록 서비스: OCR 신뢰도 < 80% → draft + requires_review
+- 계약 등록 페이지: /contracts/new
+
 ## [0.2.0] - 2026-05-05
 
 ### Changed (PRD v3.0)
