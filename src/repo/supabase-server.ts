@@ -1,7 +1,9 @@
 import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
 
 export async function createServerSupabaseClient() {
+  // Dynamic import to avoid "next/headers" in client components
+  const { cookies } = await import("next/headers");
+
   const cookieStore = await cookies();
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.4.0] - 2026-05-06
+
+### Added (Sprint 4)
+- Dashboard 계약 목록: 만기 임박 계약에 "갱신 제안서 발송" 버튼
+- DashboardContractCard: 계약 카드 컴포넌트 (상태 배지, 제안서 버튼)
+- 제안서 발송 API: /api/proposals POST (임차인명/월세 자동 입력)
+- 임차인 응답 API: /api/proposals/[token]/respond POST
+- 제안서 발송 UI: ProposalForm (인상율 계산, 5% 상한 경고)
+- 제안서 목록 UI: ProposalListPage (발송 내역, 상태 표시)
+- 커뮤니케이션 이력 UI: CommunicationHistory (발송/열람/응답 추적)
+- 임차인 응답 페이지: /renew/[token] (수락/거절/협의요청)
+- 상태 전이: negotiating → renewed (수락), move_out_pending (거절)
+- 대시보드 실시간 반영: 제안서 발송 후 리스트 새로고침
+
 ## [0.3.0] - 2026-05-06
 
 ### Added (Sprint 2)

@@ -9,11 +9,13 @@ import {
   Bell,
   Settings,
   Calculator,
+  Send,
 } from "lucide-react";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "대시보드", icon: LayoutDashboard },
   { href: "/contracts", label: "계약관리", icon: FileText },
+  { href: "/proposals", label: "갱신제안서", icon: Send },
   { href: "/calculator", label: "월세계산기", icon: Calculator },
   { href: "/notifications", label: "알림설정", icon: Bell },
   { href: "/settings", label: "설정", icon: Settings },

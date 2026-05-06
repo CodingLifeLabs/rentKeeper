@@ -1,60 +1,153 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { Loader2 } from "lucide-react";
 import { StatsCard } from "@/ui/components/dashboard/stats-card";
 import { EmptyState } from "@/ui/components/dashboard/empty-state";
+import { DashboardContractCard } from "@/ui/components/dashboard/dashboard-contract-card";
 import { getAuthenticatedUser } from "@/service/auth";
 import { getOrCreateLandlord } from "@/service/auth";
 import { getDashboardStats } from "@/service/dashboard";
-import { redirect } from "next/navigation";
+import { getContractsByLandlord } from "@/repo/contract";
+import type { Contract } from "@/types/contract";
 
-export default async function DashboardPage() {
-  const user = await getAuthenticatedUser();
-  if (!user) redirect("/login");
+export default function DashboardPage() {
+  const [stats, setStats] = useState({
+    total: 0,
+    active: 0,
+    expiring90: 0,
+    expiring30: 0,
+    negotiating: 0,
+    moveOutPending: 0,
+    vacant: 0,
+  });
+  const [contracts, setContracts] = useState<Contract[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [sendingProposal, setSendingProposal] = useState<string | null>(null);
 
-  const landlord = await getOrCreateLandlord(user.id, user.email ?? "");
-  const stats = await getDashboardStats(landlord.id);
+  async function loadData() {
+    try {
+      const currentUser = await getAuthenticatedUser();
+      if (!currentUser) return;
+
+      const currentLandlord = await getOrCreateLandlord(
+        currentUser.id,
+        currentUser.email ?? "",
+      );
+
+      const currentStats = await getDashboardStats(currentLandlord.id);
+      setStats(currentStats);
+
+      const allContracts = await getContractsByLandlord(currentLandlord.id);
+      setContracts(allContracts);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleSendProposal(contract: Contract) {
+    setSendingProposal(contract.id);
+
+    try {
+      const response = await fetch("/api/proposals", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contractId: contract.id,
+          proposedRent: contract.monthlyRent ?? 0,
+          proposedDeposit: contract.deposit,
+        }),
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error ?? "제안서 발송 실패");
+      }
+
+      await loadData();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "오류가 발생했습니다.");
+      setSendingProposal(null);
+    }
+  }
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <div className="mb-6">
+    <div className="space-y-6">
+      <div>
         <h2 className="text-xl font-black text-slate-800">계약 현황</h2>
-        <p className="text-sm text-slate-400 mt-1">전체 세대 계약 상태 한눈에 보기</p>
+        <p className="text-sm text-slate-400 mt-1">
+          전체 세대 계약 상태 한눈에 보기
+        </p>
       </div>
 
       {stats.total === 0 ? (
         <EmptyState />
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          <StatsCard label="전체 계약" value={stats.total} />
-          <StatsCard
-            label="계약 중"
-            value={stats.active}
-            color="text-[#00C896]"
-            dotColor="bg-[#00C896]"
-          />
-          <StatsCard
-            label="D-90 만기"
-            value={stats.expiring90}
-            color="text-[#FFB800]"
-            dotColor="bg-[#FFB800]"
-          />
-          <StatsCard
-            label="D-30 만기"
-            value={stats.expiring30}
-            color="text-[#FF4D4D]"
-            dotColor="bg-[#FF4D4D]"
-          />
-          <StatsCard
-            label="협상 중"
-            value={stats.negotiating}
-            color="text-[#8B5CF6]"
-            dotColor="bg-[#8B5CF6]"
-          />
-          <StatsCard
-            label="공실"
-            value={stats.vacant}
-            color="text-slate-400"
-            dotColor="bg-slate-400"
-          />
-        </div>
+        <>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <StatsCard label="전체 계약" value={stats.total} />
+            <StatsCard
+              label="계약 중"
+              value={stats.active}
+              color="text-[#00C896]"
+              dotColor="bg-[#00C896]"
+            />
+            <StatsCard
+              label="D-90 만기"
+              value={stats.expiring90}
+              color="text-[#FFB800]"
+              dotColor="bg-[#FFB800]"
+            />
+            <StatsCard
+              label="D-30 만기"
+              value={stats.expiring30}
+              color="text-[#FF4D4D]"
+              dotColor="bg-[#FF4D4D]"
+            />
+            <StatsCard
+              label="협상 중"
+              value={stats.negotiating}
+              color="text-[#8B5CF6]"
+              dotColor="bg-[#8B5CF6]"
+            />
+            <StatsCard
+              label="공실"
+              value={stats.vacant}
+              color="text-slate-400"
+              dotColor="bg-slate-400"
+            />
+          </div>
+
+          <div className="mt-6">
+            <h3 className="text-lg font-bold text-slate-800 mb-4">
+              최근 계약 목록
+            </h3>
+            <div className="space-y-3">
+              {contracts.map((contract) => (
+                <DashboardContractCard
+                  key={contract.id}
+                  contract={contract}
+                  onSendProposal={handleSendProposal}
+                  proposalCount={
+                    sendingProposal === contract.id ? 0 : undefined
+                  }
+                />
+              ))}
+            </div>
+          </div>
+        </>
       )}
     </div>
   );

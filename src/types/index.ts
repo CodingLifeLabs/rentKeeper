@@ -9,3 +9,4 @@ export { VALID_TRANSITIONS, EXPIRY_DAYS } from "./state-machine";
 export type { NotificationPreference, NotificationSettings } from "./notification-settings";
 export { DEFAULT_PREFERENCES } from "./notification-settings";
 export type { RentCalculation } from "./calculator";
+export type { RenewalProposal, RenewalProposalInsert, ProposalStatus, TenantResponse } from "./renewal-proposal";
