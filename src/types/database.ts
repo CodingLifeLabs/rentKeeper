@@ -205,6 +205,47 @@ export interface Database {
           channel?: string;
         };
       };
+      subscriptions: {
+        Row: {
+          id: string;
+          landlord_id: string;
+          plan_tier: string;
+          polar_subscription_id: string | null;
+          polar_customer_id: string | null;
+          status: string;
+          current_period_start: string;
+          current_period_end: string;
+          cancel_at_period_end: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          landlord_id: string;
+          plan_tier: string;
+          polar_subscription_id?: string | null;
+          polar_customer_id?: string | null;
+          status?: string;
+          current_period_start?: string;
+          current_period_end?: string;
+          cancel_at_period_end?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          landlord_id?: string;
+          plan_tier?: string;
+          polar_subscription_id?: string | null;
+          polar_customer_id?: string | null;
+          status?: string;
+          current_period_start?: string;
+          current_period_end?: string;
+          cancel_at_period_end?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

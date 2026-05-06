@@ -1,7 +1,19 @@
 import { createServerClient } from "@supabase/ssr";
 
+// Test mode flag - set to true in test setup
+export const TEST_MODE = process.env.NEXT_PUBLIC_SUPABASE_TEST_MODE === "true";
+
+export async function supabaseServer() {
+  return createServerSupabaseClient();
+}
+
 export async function createServerSupabaseClient() {
-  // Dynamic import to avoid "next/headers" in client components
+  // In test mode, return a mock client
+  if (TEST_MODE) {
+    return (await import("./__mocks__/supabase-server")).createServerSupabaseClient();
+  }
+
+  // Production mode - create real Supabase client
   const { cookies } = await import("next/headers");
 
   const cookieStore = await cookies();
