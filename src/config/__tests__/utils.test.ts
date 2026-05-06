@@ -1,4 +1,4 @@
-import { cn } from "@/ui/lib/utils";
+import { cn } from "@/config/utils";
 
 describe("cn", () => {
   it("merges class names", () => {

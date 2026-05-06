@@ -67,6 +67,9 @@ export interface Database {
           status: string;
           original_file_url: string | null;
           extracted_data: Record<string, unknown> | null;
+          ocr_confidence: number | null;
+          parsing_confidence: number | null;
+          requires_review: boolean;
           notes: string | null;
           created_at: string;
           updated_at: string;
@@ -84,6 +87,9 @@ export interface Database {
           status: string;
           original_file_url?: string | null;
           extracted_data?: Record<string, unknown> | null;
+          ocr_confidence?: number | null;
+          parsing_confidence?: number | null;
+          requires_review?: boolean;
           notes?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -101,6 +107,9 @@ export interface Database {
           status?: string;
           original_file_url?: string | null;
           extracted_data?: Record<string, unknown> | null;
+          ocr_confidence?: number | null;
+          parsing_confidence?: number | null;
+          requires_review?: boolean;
           notes?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -141,6 +150,38 @@ export interface Database {
           responded_at?: string | null;
         };
       };
+      communications: {
+        Row: {
+          id: string;
+          contract_id: string;
+          type: string;
+          channel: string;
+          message: string;
+          opened_at: string | null;
+          responded_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          contract_id: string;
+          type: string;
+          channel: string;
+          message: string;
+          opened_at?: string | null;
+          responded_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          contract_id?: string;
+          type?: string;
+          channel?: string;
+          message?: string;
+          opened_at?: string | null;
+          responded_at?: string | null;
+          created_at?: string;
+        };
+      };
       notifications: {
         Row: {
           id: string;
@@ -169,9 +210,11 @@ export interface Database {
     Functions: Record<string, never>;
     Enums: {
       contract_type: "월세" | "전세";
-      contract_status: "active" | "expiring" | "expired" | "renewed" | "vacancy";
+      contract_status: "draft" | "active" | "expiring_90" | "expiring_30" | "negotiating" | "renewed" | "move_out_pending" | "vacant" | "archived";
       notification_type: "d90" | "d60" | "d30" | "d7";
-      notification_channel: "push" | "email";
+      notification_channel: "push" | "email" | "kakao";
+      communication_type: "renewal" | "notice";
+      communication_channel: "email" | "kakao";
     };
   };
 }

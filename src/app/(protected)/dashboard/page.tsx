@@ -31,12 +31,12 @@ export default async function DashboardPage() {
           />
           <StatsCard
             label="만기 임박"
-            value={stats.expiring}
+            value={stats.expiring90 + stats.expiring30}
             color="text-[#FF8C00]"
           />
           <StatsCard
             label="공실"
-            value={stats.vacancy}
+            value={stats.vacant}
             color="text-[#FF4D4D]"
           />
         </div>

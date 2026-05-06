@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cn } from "@/ui/lib/utils";
+import { cn } from "@/config/utils";
 import {
   LayoutDashboard,
   FileText,

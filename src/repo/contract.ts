@@ -19,6 +19,9 @@ function toContract(row: ContractRow): Contract {
     status: row.status as ContractStatus,
     originalFileUrl: row.original_file_url,
     extractedData: row.extracted_data as Record<string, unknown> | null,
+    ocrConfidence: row.ocr_confidence,
+    parsingConfidence: row.parsing_confidence,
+    requiresReview: row.requires_review,
     notes: row.notes,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -63,6 +66,9 @@ export async function createContract(input: ContractInsert): Promise<Contract> {
     status: input.status,
     original_file_url: input.originalFileUrl ?? null,
     extracted_data: input.extractedData ?? null,
+    ocr_confidence: input.ocrConfidence ?? null,
+    parsing_confidence: input.parsingConfidence ?? null,
+    requires_review: input.requiresReview ?? false,
     notes: input.notes ?? null,
   };
   const { data, error } = await supabase

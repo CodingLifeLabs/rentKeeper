@@ -1,5 +1,5 @@
 export type NotificationType = "d90" | "d60" | "d30" | "d7";
-export type NotificationChannel = "push" | "email";
+export type NotificationChannel = "push" | "email" | "kakao";
 
 export interface Notification {
   id: string;

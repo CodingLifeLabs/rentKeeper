@@ -1,4 +1,4 @@
-import { cn } from "@/ui/lib/utils";
+import { cn } from "@/config/utils";
 
 interface CardProps {
   className?: string;

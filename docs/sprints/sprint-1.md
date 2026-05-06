@@ -10,17 +10,13 @@
 ## Sprint Contract (GENERATOR ↔ EVALUATOR 합의)
 
 ### GENERATOR가 완료해야 할 것 (코드 구현 + 자가 검증)
-- [ ] `src/types/`: Contract, Property, Landlord, Notification 타입 정의
+- [ ] `src/types/`: Contract (9단계 상태), Property, Landlord, Notification, Communication 타입
 - [ ] `src/config/`: Supabase 클라이언트 설정, 환경변수
-- [ ] `src/repo/`: Supabase CRUD (contracts, properties, landlords)
+- [ ] `src/repo/`: Supabase CRUD (contracts, properties, landlords, communications)
 - [ ] `src/service/`: 인증 서비스, 대시보드 데이터 집계
 - [ ] `src/runtime/`: 미들웨어 (인증 가드)
 - [ ] `src/ui/`: 로그인 페이지, 대시보드 페이지, 사이드바, 헤더
-- [ ] Gate 1 통과: 레이어 린터 (위반 0건)
-- [ ] Gate 2 통과: tsc --noEmit (오류 0건, any 없음)
-- [ ] Gate 3 통과: ESLint (error 0건)
-- [ ] Gate 4 통과: Jest 커버리지 80% 이상
-- [ ] Gate 5 통과: npm run build 성공
+- [ ] Gate 1~5 통과
 
 ### EVALUATOR가 검증할 것 (사용자 관점 동작)
 - [ ] URL: localhost:3000 → 로그인 페이지 리다이렉트

@@ -1,4 +1,4 @@
--- RentKeeper DB Schema
+-- RentKeeper DB Schema (v3.0)
 -- Run in Supabase SQL Editor
 
 -- Enable UUID
@@ -35,9 +35,12 @@ create table contracts (
   start_date date not null,
   end_date date not null,
   contract_type text not null check (contract_type in ('월세', '전세')),
-  status text not null default 'active' check (status in ('active', 'expiring', 'expired', 'renewed', 'vacancy')),
+  status text not null default 'draft' check (status in ('draft', 'active', 'expiring_90', 'expiring_30', 'negotiating', 'renewed', 'move_out_pending', 'vacant', 'archived')),
   original_file_url text,
   extracted_data jsonb,
+  ocr_confidence numeric,
+  parsing_confidence numeric,
+  requires_review boolean not null default false,
   notes text,
   created_at timestamptz default now() not null,
   updated_at timestamptz default now() not null
@@ -56,13 +59,25 @@ create table renewal_proposals (
   responded_at timestamptz
 );
 
+-- Communications (v3.0)
+create table communications (
+  id uuid default uuid_generate_v4() primary key,
+  contract_id uuid references contracts(id) on delete cascade not null,
+  type text not null check (type in ('renewal', 'notice')),
+  channel text not null check (channel in ('email', 'kakao')),
+  message text not null,
+  opened_at timestamptz,
+  responded_at timestamptz,
+  created_at timestamptz default now() not null
+);
+
 -- Notifications
 create table notifications (
   id uuid default uuid_generate_v4() primary key,
   contract_id uuid references contracts(id) on delete cascade not null,
   type text not null check (type in ('d90', 'd60', 'd30', 'd7')),
   sent_at timestamptz default now() not null,
-  channel text not null check (channel in ('push', 'email'))
+  channel text not null check (channel in ('push', 'email', 'kakao'))
 );
 
 -- RLS Policies
@@ -70,6 +85,7 @@ alter table landlords enable row level security;
 alter table properties enable row level security;
 alter table contracts enable row level security;
 alter table renewal_proposals enable row level security;
+alter table communications enable row level security;
 alter table notifications enable row level security;
 
 -- Landlords: users can only see their own
@@ -174,6 +190,27 @@ create policy "Landlords can update own proposals" on renewal_proposals
 -- Public read for share_token (tenant access)
 create policy "Public can view proposal by token" on renewal_proposals
   for select using (share_token = current_setting('request.jwt.claims')::json->>'share_token');
+
+-- Communications: via contract -> property -> landlord
+create policy "Landlords can view own communications" on communications
+  for select using (
+    contract_id in (
+      select c.id from contracts c
+      join properties p on c.property_id = p.id
+      join landlords l on p.landlord_id = l.id
+      where l.user_id = auth.uid()
+    )
+  );
+
+create policy "Landlords can insert own communications" on communications
+  for insert with check (
+    contract_id in (
+      select c.id from contracts c
+      join properties p on c.property_id = p.id
+      join landlords l on p.landlord_id = l.id
+      where l.user_id = auth.uid()
+    )
+  );
 
 -- Notifications: via contract -> property -> landlord
 create policy "Landlords can view own notifications" on notifications
