@@ -1,6 +1,7 @@
 import { createServerSupabaseClient } from "./supabase-server";
 import type { Contract, ContractInsert, ContractStatus } from "@/types/contract";
 import type { Database } from "@/types/database";
+import type { ExpiryThreshold } from "@/types/state-machine";
 
 type ContractRow = Database["public"]["Tables"]["contracts"]["Row"];
 type ContractInsertRow = Database["public"]["Tables"]["contracts"]["Insert"];
@@ -79,4 +80,42 @@ export async function createContract(input: ContractInsert): Promise<Contract> {
 
   if (error) throw new Error(`Failed to create contract: ${error.message}`);
   return toContract(data as unknown as ContractRow);
+}
+
+export async function updateContractStatus(
+  id: string,
+  status: ContractStatus,
+): Promise<Contract> {
+  const supabase = await createServerSupabaseClient();
+  const { data, error } = await supabase
+    .from("contracts")
+    .update({ status, updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error)
+    throw new Error(`Failed to update contract status: ${error.message}`);
+  return toContract(data as unknown as ContractRow);
+}
+
+export async function getExpiringContracts(
+  threshold: ExpiryThreshold,
+  days: number,
+): Promise<Contract[]> {
+  const supabase = await createServerSupabaseClient();
+  const targetDate = new Date();
+  targetDate.setDate(targetDate.getDate() + days);
+  const targetDateStr = targetDate.toISOString().split("T")[0];
+
+  const { data, error } = await supabase
+    .from("contracts")
+    .select("*")
+    .eq("status", "active")
+    .lte("end_date", targetDateStr)
+    .gt("end_date", new Date().toISOString().split("T")[0]);
+
+  if (error)
+    throw new Error(`Failed to fetch expiring contracts: ${error.message}`);
+  return (data as unknown as ContractRow[]).map(toContract);
 }

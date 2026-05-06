@@ -22,22 +22,37 @@ export default async function DashboardPage() {
       {stats.total === 0 ? (
         <EmptyState />
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           <StatsCard label="전체 계약" value={stats.total} />
           <StatsCard
             label="계약 중"
             value={stats.active}
             color="text-[#00C896]"
+            dotColor="bg-[#00C896]"
           />
           <StatsCard
-            label="만기 임박"
-            value={stats.expiring90 + stats.expiring30}
-            color="text-[#FF8C00]"
+            label="D-90 만기"
+            value={stats.expiring90}
+            color="text-[#FFB800]"
+            dotColor="bg-[#FFB800]"
+          />
+          <StatsCard
+            label="D-30 만기"
+            value={stats.expiring30}
+            color="text-[#FF4D4D]"
+            dotColor="bg-[#FF4D4D]"
+          />
+          <StatsCard
+            label="협상 중"
+            value={stats.negotiating}
+            color="text-[#8B5CF6]"
+            dotColor="bg-[#8B5CF6]"
           />
           <StatsCard
             label="공실"
             value={stats.vacant}
-            color="text-[#FF4D4D]"
+            color="text-slate-400"
+            dotColor="bg-slate-400"
           />
         </div>
       )}

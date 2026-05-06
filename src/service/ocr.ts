@@ -11,7 +11,6 @@ const MOCK_FIELDS: OcrField[] = [
   { key: "address", label: "임대물", value: "서울시 강남구 역삼로 123", confidence: 0.82 },
 ];
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 
 function computeOverallConfidence(fields: OcrField[]): number {
   if (fields.length === 0) return 0;

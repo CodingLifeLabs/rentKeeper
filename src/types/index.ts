@@ -4,3 +4,8 @@ export type { Landlord, LandlordInsert } from "./landlord";
 export type { Notification, NotificationInsert, NotificationType, NotificationChannel } from "./notification";
 export type { Communication, CommunicationInsert, CommunicationType, CommunicationChannel } from "./communication";
 export type { OcrField, OcrResult, OcrJobRequest, OcrJobResult, ContractFormData } from "./ocr";
+export type { StateTransition, ExpiryThreshold } from "./state-machine";
+export { VALID_TRANSITIONS, EXPIRY_DAYS } from "./state-machine";
+export type { NotificationPreference, NotificationSettings } from "./notification-settings";
+export { DEFAULT_PREFERENCES } from "./notification-settings";
+export type { RentCalculation } from "./calculator";

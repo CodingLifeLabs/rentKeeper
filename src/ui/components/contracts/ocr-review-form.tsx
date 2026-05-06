@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { AlertTriangle, CheckCircle2, Loader2 } from "lucide-react";
 import { cn } from "@/config/utils";
 import { Button } from "@/ui/components/ui/button";
@@ -81,10 +81,6 @@ export function OcrReviewForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const result = ocrResult.result;
-  const initialForm = useMemo(
-    () => buildInitialForm(result?.fields ?? []),
-    [result],
-  );
 
   if (!result) return null;
 

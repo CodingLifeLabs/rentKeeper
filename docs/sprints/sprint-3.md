@@ -11,12 +11,12 @@
 ## Sprint Contract
 
 ### GENERATOR가 완료해야 할 것
-- [ ] `src/types/`: 상태 전이 타입, 알림 설정 타입
-- [ ] `src/service/`: 상태 기계 서비스, 알림 서비스 (FCM/Kakao/Resend), 월세 계산기 로직
-- [ ] `src/repo/`: 알림 기록 CRUD, communications CRUD
-- [ ] `src/runtime/`: Edge Function (만기 체크 cron, 상태 전이), /api/notify
-- [ ] `src/ui/`: 알림 설정 페이지, 월세 계산기 컴포넌트, 커뮤니케이션 이력 패널
-- [ ] Gate 1~5 통과
+- [x] `src/types/`: 상태 전이 타입, 알림 설정 타입
+- [x] `src/service/`: 상태 기계 서비스, 알림 서비스 (FCM/Kakao/Resend), 월세 계산기 로직
+- [x] `src/repo/`: 알림 기록 CRUD, communications CRUD
+- [x] `src/runtime/`: Edge Function (만기 체크 cron, 상태 전이), /api/notify
+- [x] `src/ui/`: 알림 설정 페이지, 월세 계산기 컴포넌트, 커뮤니케이션 이력 패널
+- [x] Gate 1~5 통과
 
 ### EVALUATOR가 검증할 것
 - [ ] 대시보드: 상태별 배지 표시 (expiring_90=노랑, expiring_30=빨강, vacant=회색)
@@ -28,3 +28,14 @@
 
 ## 의존 Sprint
 이전 Sprint: Sprint 2
+
+## GENERATOR 자가 검증 결과
+실행 일시: 2026-05-06
+
+| Gate | 항목 | 결과 | 비고 |
+|------|------|------|------|
+| 1 | 레이어 의존성 | ✅ PASS | 위반 0건 |
+| 2 | 타입 안전성 | ✅ PASS | 오류 0건 |
+| 3 | ESLint | ✅ PASS | error 0건, warning 2건 (supabase-server.ts 미커버) |
+| 4 | 테스트 커버리지 | ✅ PASS | 94.9% (77 tests passed) |
+| 5 | 빌드 성공 | ✅ PASS | 신규 라우트: /calculator, /notifications, /api/cron/expiry-check, /api/notify |
