@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.5.0] - 2026-05-06
+
+### Added (Sprint 5) — EVALUATOR PASS
+- Polar SDK 연동: checkout 세션 생성, 웹훅 서명 검증, 구독 라이프사이클 관리
+- 플랜 티어: Free (3건), Pro (₩9,900/20건/OCR), Business (₩24,900/100건/브랜딩)
+- 결제 서비스: getCurrentSubscription, canPerformAction (플랜별 제한 체크)
+- 구독 repo: functional 패턴 (getSubscriptionByLandlord, create, update, countContracts)
+- 웹훅 핸들러: /api/webhooks/polar (subscription.created/active/canceled/revoked/past_due)
+- 빌링 API: /api/billing (GET 현재 플랜, POST 체크아웃/권한 확인)
+- 요금제 페이지: /pricing (공개, 3개 플랜 카드, Pro "가장 인기" 배지)
+- 랜딩 페이지: / (히어로, 6개 기능 카드, CTA, 푸터)
+- 결제 성공/취소 페이지: /billing/success, /billing/cancel
+- 미들웨어: /api/webhooks 인증 바이패스 추가
+
 ## [0.4.0] - 2026-05-06
 
 ### Added (Sprint 4) — EVALUATOR PASS
