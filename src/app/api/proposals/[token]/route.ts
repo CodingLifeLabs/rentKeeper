@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getProposalByToken } from "@/repo/renewal-proposal";
 import { getContractById } from "@/repo/contract";
+import { recordAudit } from "@/service/audit-log";
 
 export async function GET(
   _request: Request,

@@ -3,6 +3,7 @@ import { getAuthenticatedUser, getOrCreateLandlord } from "@/service/auth";
 import { getContractsByLandlord } from "@/repo/contract";
 import { generateCsv, getExportFilename } from "@/service/export";
 import { createExportLog } from "@/repo/export-log";
+import { recordAudit } from "@/service/audit-log";
 
 export async function GET(request: Request) {
   const user = await getAuthenticatedUser();
@@ -24,6 +25,8 @@ export async function GET(request: Request) {
     rowCount: contracts.length,
     includePhone,
   });
+
+  await recordAudit(landlord.id, "export_csv", undefined, { rowCount: contracts.length, includePhone });
 
   return new Response(csv, {
     headers: {

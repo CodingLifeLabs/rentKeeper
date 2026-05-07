@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getAuthenticatedUser, getOrCreateLandlord } from "@/service/auth";
 import { sendRenewalProposal } from "@/service/proposal";
 import { getProposalsByContract } from "@/repo/renewal-proposal";
+import { recordAudit } from "@/service/audit-log";
 import type { RenewalProposalInsert } from "@/types/renewal-proposal";
 
 export async function GET(request: Request) {
@@ -30,7 +31,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "인증이 필요합니다." }, { status: 401 });
   }
 
-  await getOrCreateLandlord(user.id, user.email ?? "");
+  const landlord = await getOrCreateLandlord(user.id, user.email ?? "");
 
   const body = await request.json();
   const input = body as RenewalProposalInsert;
@@ -43,6 +44,11 @@ export async function POST(request: Request) {
   }
 
   const proposal = await sendRenewalProposal(input);
+
+  await recordAudit(landlord.id, "proposal_sent", proposal.id, {
+    contractId: input.contractId,
+    proposedRent: input.proposedRent,
+  });
 
   return NextResponse.json(proposal, { status: 201 });
 }

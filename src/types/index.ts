@@ -14,3 +14,4 @@ export type { Plan, PlanTier, PlanLimits, Subscription, SubscriptionStatus, Subs
 export type { ExportLog, ExportLogInsert, ExportType } from "./export-log";
 export type { RenewalFlowStep, RenewalFlowState } from "./renewal-flow";
 export { FLOW_STEP_LABELS, MESSAGE_GUIDELINES } from "./renewal-flow";
+export type { AuditLog, AuditLogInsert, AuditAction, TodayAction } from "./audit-log";

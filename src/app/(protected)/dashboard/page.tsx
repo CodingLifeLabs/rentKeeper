@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react";
 import { StatsCard } from "@/ui/components/dashboard/stats-card";
 import { EmptyState } from "@/ui/components/dashboard/empty-state";
 import { DashboardContractCard } from "@/ui/components/dashboard/dashboard-contract-card";
+import { TodayActions } from "@/ui/components/dashboard/today-actions";
 import type { Contract, ContractStatus } from "@/types/contract";
 
 interface DashboardStats {
@@ -152,6 +153,13 @@ export default function DashboardPage() {
               color="text-slate-400"
               dotColor="bg-slate-400"
             />
+          </div>
+
+          <div className="mt-6">
+            <h3 className="text-lg font-bold text-slate-800 mb-4">
+              오늘 해야 할 일
+            </h3>
+            <TodayActions />
           </div>
 
           <div className="mt-6">

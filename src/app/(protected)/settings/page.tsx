@@ -1,15 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Loader2, User, Bell, CreditCard, LogOut } from "lucide-react";
+import { Loader2, User, Bell, CreditCard, LogOut, FileText } from "lucide-react";
 import { Button } from "@/ui/components/ui/button";
 import { Card, CardContent } from "@/ui/components/ui/card";
 import Link from "next/link";
 import type { Landlord } from "@/types/landlord";
+import type { AuditLog } from "@/types/audit-log";
+import { formatAuditAction } from "@/service/audit-log";
 
 export default function SettingsPage() {
   const [landlord, setLandlord] = useState<Landlord | null>(null);
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [logsLoading, setLogsLoading] = useState(true);
 
   async function loadProfile() {
     try {
@@ -22,8 +26,21 @@ export default function SettingsPage() {
     }
   }
 
+  async function loadAuditLogs() {
+    try {
+      const res = await fetch("/api/audit");
+      if (res.ok) {
+        const data = await res.json();
+        setAuditLogs(data);
+      }
+    } finally {
+      setLogsLoading(false);
+    }
+  }
+
   useEffect(() => {
     loadProfile();
+    loadAuditLogs();
   }, []);
 
   if (loading) {
@@ -46,7 +63,7 @@ export default function SettingsPage() {
       <Card>
         <CardContent className="p-6">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-full bg-[#1A3C5E] flex items-center justify-center">
+            <div className="w-12 h-12 rounded-full bg-[#1B3A6B] flex items-center justify-center">
               <User size={24} className="text-white" />
             </div>
             <div>
@@ -118,6 +135,54 @@ export default function SettingsPage() {
               </button>
             </form>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <FileText size={16} className="text-slate-400" />
+            <h3 className="text-sm font-bold text-slate-800">활동 이력</h3>
+          </div>
+
+          {logsLoading ? (
+            <div className="flex items-center gap-2 py-4">
+              <Loader2 size={14} className="animate-spin text-slate-400" />
+              <span className="text-xs text-slate-400">이력 로딩 중...</span>
+            </div>
+          ) : auditLogs.length === 0 ? (
+            <p className="text-sm text-slate-400 text-center py-4">
+              아직 활동 이력이 없습니다
+            </p>
+          ) : (
+            <div className="space-y-2 max-h-64 overflow-y-auto">
+              {auditLogs.map((log) => (
+                <div
+                  key={log.id}
+                  className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0"
+                >
+                  <div>
+                    <p className="text-sm font-medium text-slate-700">
+                      {formatAuditAction(log.action)}
+                    </p>
+                    {log.targetId && (
+                      <p className="text-xs text-slate-400">
+                        ID: {log.targetId.slice(0, 8)}...
+                      </p>
+                    )}
+                  </div>
+                  <p className="text-xs text-slate-400 shrink-0">
+                    {new Date(log.createdAt).toLocaleDateString("ko-KR", {
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
