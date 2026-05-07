@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getProposalByToken } from "@/repo/renewal-proposal";
+import { getContractById } from "@/repo/contract";
 
 export async function GET(
   _request: Request,
@@ -15,5 +16,13 @@ export async function GET(
     );
   }
 
-  return NextResponse.json(proposal);
+  const contract = await getContractById(proposal.contractId);
+
+  return NextResponse.json({
+    ...proposal,
+    currentRent: contract?.monthlyRent ?? 0,
+    currentDeposit: contract?.deposit ?? 0,
+    tenantName: contract?.tenantName ?? "",
+    endDate: contract?.endDate ?? "",
+  });
 }

@@ -12,3 +12,5 @@ export type { RentCalculation } from "./calculator";
 export type { RenewalProposal, RenewalProposalInsert, ProposalStatus, TenantResponse } from "./renewal-proposal";
 export type { Plan, PlanTier, PlanLimits, Subscription, SubscriptionStatus, SubscriptionInsert } from "./billing";
 export type { ExportLog, ExportLogInsert, ExportType } from "./export-log";
+export type { RenewalFlowStep, RenewalFlowState } from "./renewal-flow";
+export { FLOW_STEP_LABELS, MESSAGE_GUIDELINES } from "./renewal-flow";
