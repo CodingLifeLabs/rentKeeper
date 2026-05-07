@@ -1,6 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
 
-// Test mode flag - set to true in test setup
 export const TEST_MODE = process.env.NEXT_PUBLIC_SUPABASE_TEST_MODE === "true";
 
 export async function supabaseServer() {
@@ -8,12 +7,10 @@ export async function supabaseServer() {
 }
 
 export async function createServerSupabaseClient() {
-  // In test mode, return a mock client
   if (TEST_MODE) {
     return (await import("./__mocks__/supabase-server")).createServerSupabaseClient();
   }
 
-  // Production mode - create real Supabase client
   const { cookies } = await import("next/headers");
 
   const cookieStore = await cookies();
@@ -25,10 +22,9 @@ export async function createServerSupabaseClient() {
         getAll() {
           return cookieStore.getAll();
         },
-        setAll(cookiesToSet) {
-          for (const { name, value, options } of cookiesToSet) {
-            cookieStore.set(name, value, options);
-          }
+        setAll() {
+          // Cookie writes are handled by the proxy (proxy.ts).
+          // Server Components cannot modify cookies in Next.js 16.
         },
       },
     },
