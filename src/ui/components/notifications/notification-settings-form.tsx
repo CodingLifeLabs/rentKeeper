@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Bell, Mail, MessageCircle, Smartphone } from "lucide-react";
 import { cn } from "@/config/utils";
 import { Card, CardHeader, CardContent } from "@/ui/components/ui/card";
@@ -48,6 +48,25 @@ export function NotificationSettingsForm() {
     DEFAULT_PREFERENCES,
   );
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const loadPreferences = useCallback(async () => {
+    try {
+      const res = await fetch("/api/notifications/settings");
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.preferences && Array.isArray(data.preferences)) {
+        setPreferences(data.preferences);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadPreferences();
+  }, [loadPreferences]);
 
   const toggleChannel = (channel: NotificationChannel) => {
     setPreferences((prev) =>
@@ -77,8 +96,21 @@ export function NotificationSettingsForm() {
     setSaved(false);
   };
 
-  const handleSave = () => {
-    setSaved(true);
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch("/api/notifications/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ preferences }),
+      });
+      if (res.ok) {
+        setSaved(true);
+        setTimeout(() => setSaved(false), 3000);
+      }
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -93,13 +125,19 @@ export function NotificationSettingsForm() {
               <h3 className="text-base font-bold text-slate-800">
                 만기 알림 설정
               </h3>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500">
                 채널별 알림 수신 및 타이밍 설정
               </p>
             </div>
           </div>
         </CardHeader>
         <CardContent>
+          {loading ? (
+            <div className="flex items-center justify-center py-8">
+              <span className="text-sm text-slate-500">설정을 불러오는 중...</span>
+            </div>
+          ) : (
+          <>
           <div className="space-y-4">
             {preferences.map((pref) => {
               const meta = CHANNEL_META[pref.channel];
@@ -157,7 +195,7 @@ export function NotificationSettingsForm() {
 
                   {pref.enabled && (
                     <div className="mt-3 pt-3 border-t border-slate-100">
-                      <div className="text-xs font-semibold text-slate-500 mb-2">
+                      <div className="text-sm font-semibold text-slate-700 mb-2">
                         알림 시점
                       </div>
                       <div className="flex flex-wrap gap-2">
@@ -174,7 +212,7 @@ export function NotificationSettingsForm() {
                                 "px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors",
                                 active
                                   ? "bg-[#1A3C5E] text-white"
-                                  : "bg-slate-100 text-slate-400 hover:bg-slate-200",
+                                  : "bg-slate-100 text-slate-500 hover:bg-slate-200",
                               )}
                             >
                               {THRESHOLD_LABELS[threshold]}
@@ -197,11 +235,14 @@ export function NotificationSettingsForm() {
             )}
             <Button
               onClick={handleSave}
+              disabled={saving || loading}
               className={cn(!saved && "ml-auto")}
             >
-              설정 저장
+              {saving ? "저장 중..." : "설정 저장"}
             </Button>
           </div>
+          </>
+          )}
         </CardContent>
       </Card>
     </div>

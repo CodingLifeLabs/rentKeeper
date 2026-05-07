@@ -205,6 +205,26 @@ export interface Database {
           channel?: string;
         };
       };
+      notification_preferences: {
+        Row: {
+          id: string;
+          landlord_id: string;
+          preferences: Record<string, unknown>[];
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          landlord_id: string;
+          preferences?: Record<string, unknown>[];
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          landlord_id?: string;
+          preferences?: Record<string, unknown>[];
+          updated_at?: string;
+        };
+      };
       subscriptions: {
         Row: {
           id: string;
