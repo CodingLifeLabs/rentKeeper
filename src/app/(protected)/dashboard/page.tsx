@@ -5,14 +5,45 @@ import { Loader2 } from "lucide-react";
 import { StatsCard } from "@/ui/components/dashboard/stats-card";
 import { EmptyState } from "@/ui/components/dashboard/empty-state";
 import { DashboardContractCard } from "@/ui/components/dashboard/dashboard-contract-card";
-import { getAuthenticatedUser } from "@/service/auth";
-import { getOrCreateLandlord } from "@/service/auth";
-import { getDashboardStats } from "@/service/dashboard";
-import { getContractsByLandlord } from "@/repo/contract";
-import type { Contract } from "@/types/contract";
+import type { Contract, ContractStatus } from "@/types/contract";
+
+interface DashboardStats {
+  total: number;
+  active: number;
+  expiring90: number;
+  expiring30: number;
+  negotiating: number;
+  moveOutPending: number;
+  vacant: number;
+}
+
+function computeStats(contracts: Contract[]): DashboardStats {
+  const stats: DashboardStats = {
+    total: contracts.length,
+    active: 0,
+    expiring90: 0,
+    expiring30: 0,
+    negotiating: 0,
+    moveOutPending: 0,
+    vacant: 0,
+  };
+
+  for (const contract of contracts) {
+    switch (contract.status as ContractStatus) {
+      case "active": stats.active++; break;
+      case "expiring_90": stats.expiring90++; break;
+      case "expiring_30": stats.expiring30++; break;
+      case "negotiating": stats.negotiating++; break;
+      case "move_out_pending": stats.moveOutPending++; break;
+      case "vacant": stats.vacant++; break;
+    }
+  }
+
+  return stats;
+}
 
 export default function DashboardPage() {
-  const [stats, setStats] = useState({
+  const [stats, setStats] = useState<DashboardStats>({
     total: 0,
     active: 0,
     expiring90: 0,
@@ -27,19 +58,12 @@ export default function DashboardPage() {
 
   async function loadData() {
     try {
-      const currentUser = await getAuthenticatedUser();
-      if (!currentUser) return;
+      const res = await fetch("/api/contracts");
+      if (!res.ok) return;
 
-      const currentLandlord = await getOrCreateLandlord(
-        currentUser.id,
-        currentUser.email ?? "",
-      );
-
-      const currentStats = await getDashboardStats(currentLandlord.id);
-      setStats(currentStats);
-
-      const allContracts = await getContractsByLandlord(currentLandlord.id);
-      setContracts(allContracts);
+      const data: Contract[] = await res.json();
+      setContracts(data);
+      setStats(computeStats(data));
     } finally {
       setLoading(false);
     }
@@ -87,7 +111,7 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-black text-slate-800">계약 현황</h2>
-        <p className="text-sm text-slate-400 mt-1">
+        <p className="text-sm text-slate-500 mt-1">
           전체 세대 계약 상태 한눈에 보기
         </p>
       </div>

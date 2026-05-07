@@ -5,9 +5,6 @@ import Link from "next/link";
 import { Plus, Loader2, FileText } from "lucide-react";
 import { Button } from "@/ui/components/ui/button";
 import { Card, CardContent } from "@/ui/components/ui/card";
-import { getAuthenticatedUser } from "@/service/auth";
-import { getOrCreateLandlord } from "@/service/auth";
-import { getContractsByLandlord } from "@/repo/contract";
 import type { Contract, ContractStatus } from "@/types/contract";
 
 const statusConfig: Record<
@@ -41,11 +38,9 @@ export default function ContractsPage() {
 
   async function loadContracts() {
     try {
-      const user = await getAuthenticatedUser();
-      if (!user) return;
-
-      const landlord = await getOrCreateLandlord(user.id, user.email ?? "");
-      const data = await getContractsByLandlord(landlord.id);
+      const res = await fetch("/api/contracts");
+      if (!res.ok) return;
+      const data = await res.json();
       setContracts(data);
     } finally {
       setLoading(false);
@@ -74,7 +69,7 @@ export default function ContractsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-black text-slate-800">계약 관리</h2>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-slate-500 mt-1">
             전체 계약 목록 조회 및 관리
           </p>
         </div>
@@ -105,7 +100,7 @@ export default function ContractsPage() {
       {filtered.length === 0 ? (
         <div className="text-center py-16">
           <FileText size={40} className="mx-auto text-slate-200 mb-4" />
-          <p className="text-slate-400 text-sm">
+          <p className="text-slate-500 text-sm">
             {contracts.length === 0
               ? "등록된 계약이 없습니다. 첫 계약을 등록해보세요."
               : "해당 상태의 계약이 없습니다."}
@@ -130,12 +125,12 @@ export default function ContractsPage() {
                           {status.label}
                         </span>
                       </div>
-                      <p className="text-xs text-slate-400">
+                      <p className="text-sm text-slate-600">
                         {contract.contractType === "전세"
                           ? `보증금 ${contract.deposit.toLocaleString()}원`
                           : `보증금 ${contract.deposit.toLocaleString()}원 / 월세 ${(contract.monthlyRent ?? 0).toLocaleString()}원`}
                       </p>
-                      <p className="text-xs text-slate-400">
+                      <p className="text-sm text-slate-600">
                         {new Date(contract.startDate).toLocaleDateString("ko-KR")} ~{" "}
                         {new Date(contract.endDate).toLocaleDateString("ko-KR")}
                       </p>

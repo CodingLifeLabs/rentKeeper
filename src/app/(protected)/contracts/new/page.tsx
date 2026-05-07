@@ -17,18 +17,25 @@ export default function NewContractPage() {
   };
 
   const handleConfirm = async (formData: ContractFormData) => {
-    const res = await fetch("/api/contracts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        formData: { ...formData, propertyId: "manual" },
-        ocrResult: ocrResult?.result,
-        originalFileUrl: null,
-      }),
-    });
+    try {
+      const res = await fetch("/api/contracts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          formData: { ...formData, propertyId: "manual" },
+          ocrResult: ocrResult?.result,
+          originalFileUrl: null,
+        }),
+      });
 
-    if (res.ok) {
-      router.push("/dashboard");
+      if (res.ok) {
+        router.push("/dashboard");
+      } else {
+        const err = await res.json();
+        alert(err.error ?? "계약 등록에 실패했습니다.");
+      }
+    } catch {
+      alert("계약 등록 중 오류가 발생했습니다.");
     }
   };
 

@@ -37,7 +37,7 @@ export function RentCalculatorForm() {
             </div>
             <div>
               <h3 className="text-base font-bold text-slate-800">월세 인상 계산기</h3>
-              <p className="text-xs text-slate-400">5% 상한 자동 계산 (주택임대차보호법)</p>
+              <p className="text-sm text-slate-500">5% 상한 자동 계산 (주택임대차보호법)</p>
             </div>
           </div>
         </CardHeader>
@@ -45,33 +45,33 @@ export function RentCalculatorForm() {
           <form onSubmit={handleCalculate} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-600">현재 월세 (원)</label>
+                <label className="text-sm font-semibold text-slate-800">현재 월세 (원)</label>
                 <input
                   type="number"
                   value={currentRent}
                   onChange={(e) => setCurrentRent(e.target.value)}
                   placeholder="500000"
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1A3C5E] focus:border-transparent"
+                  className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#1A3C5E] focus:border-transparent"
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-600">인상 요구 월세 (원)</label>
+                <label className="text-sm font-semibold text-slate-800">인상 요구 월세 (원)</label>
                 <input
                   type="number"
                   value={proposedRent}
                   onChange={(e) => setProposedRent(e.target.value)}
                   placeholder="550000"
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1A3C5E] focus:border-transparent"
+                  className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#1A3C5E] focus:border-transparent"
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-600">보증금 (원)</label>
+                <label className="text-sm font-semibold text-slate-800">보증금 (원)</label>
                 <input
                   type="number"
                   value={deposit}
                   onChange={(e) => setDeposit(e.target.value)}
                   placeholder="50000000"
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1A3C5E] focus:border-transparent"
+                  className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#1A3C5E] focus:border-transparent"
                 />
               </div>
             </div>
@@ -111,19 +111,19 @@ export function RentCalculatorForm() {
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
-                  <div className="text-xs text-slate-400 mb-1">현재 월세</div>
+                  <div className="text-xs text-slate-600 font-medium mb-1">현재 월세</div>
                   <div className="text-lg font-black text-slate-800">
                     {result.currentRent.toLocaleString()}원
                   </div>
                 </div>
                 <div>
-                  <div className="text-xs text-slate-400 mb-1">인상 후 월세</div>
+                  <div className="text-xs text-slate-600 font-medium mb-1">인상 후 월세</div>
                   <div className="text-lg font-black text-slate-800">
                     {result.proposedRent.toLocaleString()}원
                   </div>
                 </div>
                 <div>
-                  <div className="text-xs text-slate-400 mb-1">인상율</div>
+                  <div className="text-xs text-slate-600 font-medium mb-1">인상율</div>
                   <div className={cn(
                     "text-lg font-black",
                     result.isLegal ? "text-[#00C896]" : "text-[#FF4D4D]",
@@ -132,7 +132,7 @@ export function RentCalculatorForm() {
                   </div>
                 </div>
                 <div>
-                  <div className="text-xs text-slate-400 mb-1">법정 상한</div>
+                  <div className="text-xs text-slate-600 font-medium mb-1">법정 상한</div>
                   <div className="text-lg font-black text-slate-800">
                     {(result.legalMaxRate * 100).toFixed(0)}%
                   </div>

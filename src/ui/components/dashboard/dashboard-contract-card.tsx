@@ -109,10 +109,10 @@ export function DashboardContractCard({
                 {status.label}
               </span>
             </div>
-            <p className="text-xs text-slate-400">
+            <p className="text-sm text-slate-600">
               월세 {(contract.monthlyRent ?? 0).toLocaleString()}원
             </p>
-            <p className="text-xs text-slate-400">
+            <p className="text-sm text-slate-600">
               만료일 {new Date(contract.endDate).toLocaleDateString("ko-KR")}
             </p>
             {proposalCount > 0 && (

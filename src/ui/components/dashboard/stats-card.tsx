@@ -20,7 +20,7 @@ export function StatsCard({ label, value, color, dotColor, className }: StatsCar
         {dotColor && (
           <span className={cn("w-2 h-2 rounded-full", dotColor)} />
         )}
-        <div className="text-xs text-slate-400">{label}</div>
+        <div className="text-xs text-slate-600 font-medium">{label}</div>
       </div>
       <div className={cn("text-3xl font-black", color ?? "text-slate-800")}>
         {value}

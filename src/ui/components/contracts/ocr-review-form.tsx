@@ -132,12 +132,12 @@ export function OcrReviewForm({
               return (
                 <div key={field.key} className="space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-semibold text-slate-600">
+                    <label className="text-sm font-semibold text-slate-800">
                       {config.label}
                     </label>
                     <span
                       className={cn(
-                        "text-[10px] font-bold",
+                        "text-xs font-bold",
                         confidenceColor(field.confidence),
                       )}
                     >
@@ -148,7 +148,7 @@ export function OcrReviewForm({
                     <select
                       value={String(form[field.key as keyof ContractFormData] ?? "")}
                       onChange={(e) => updateField(field.key, e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1A3C5E] focus:border-transparent"
+                      className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#1A3C5E] focus:border-transparent"
                     >
                       {config.options?.map((opt) => (
                         <option key={opt} value={opt}>
@@ -168,7 +168,7 @@ export function OcrReviewForm({
                             : e.target.value,
                         )
                       }
-                      className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1A3C5E] focus:border-transparent"
+                      className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#1A3C5E] focus:border-transparent"
                     />
                   )}
                 </div>
@@ -177,7 +177,7 @@ export function OcrReviewForm({
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-600">
+            <label className="text-sm font-semibold text-slate-800">
               특약사항 메모
             </label>
             <textarea
@@ -185,7 +185,7 @@ export function OcrReviewForm({
               onChange={(e) => setNotes(e.target.value)}
               placeholder="특약사항이나 메모를 입력하세요"
               rows={3}
-              className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1A3C5E] focus:border-transparent resize-none"
+              className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#1A3C5E] focus:border-transparent resize-none"
             />
           </div>
 

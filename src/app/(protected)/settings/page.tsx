@@ -4,9 +4,6 @@ import { useState, useEffect } from "react";
 import { Loader2, User, Bell, CreditCard, LogOut } from "lucide-react";
 import { Button } from "@/ui/components/ui/button";
 import { Card, CardContent } from "@/ui/components/ui/card";
-import { getAuthenticatedUser } from "@/service/auth";
-import { getOrCreateLandlord } from "@/service/auth";
-import { getLandlordByUserId } from "@/repo/landlord";
 import Link from "next/link";
 import type { Landlord } from "@/types/landlord";
 
@@ -16,9 +13,9 @@ export default function SettingsPage() {
 
   async function loadProfile() {
     try {
-      const user = await getAuthenticatedUser();
-      if (!user) return;
-      const data = await getLandlordByUserId(user.id);
+      const res = await fetch("/api/landlord/profile");
+      if (!res.ok) return;
+      const data = await res.json();
       if (data) setLandlord(data);
     } finally {
       setLoading(false);
