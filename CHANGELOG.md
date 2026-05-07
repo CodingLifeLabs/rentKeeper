@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1] - 2026-05-08
+
+### Added
+- 알림 설정 영속화: notification_preferences 테이블 + CRUD repo
+- /api/notifications/settings GET/PUT 엔드포인트
+- 알림 설정 폼: 서버에서 설정 로드/저장, 로딩 상태 표시
+
 ## [0.5.0] - 2026-05-06
 
 ### Added (Sprint 5) — EVALUATOR PASS
