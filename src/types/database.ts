@@ -225,6 +225,32 @@ export interface Database {
           updated_at?: string;
         };
       };
+      export_logs: {
+        Row: {
+          id: string;
+          landlord_id: string;
+          export_type: string;
+          exported_at: string;
+          row_count: number;
+          include_phone: boolean;
+        };
+        Insert: {
+          id?: string;
+          landlord_id: string;
+          export_type: string;
+          exported_at?: string;
+          row_count: number;
+          include_phone?: boolean;
+        };
+        Update: {
+          id?: string;
+          landlord_id?: string;
+          export_type?: string;
+          exported_at?: string;
+          row_count?: number;
+          include_phone?: boolean;
+        };
+      };
       subscriptions: {
         Row: {
           id: string;

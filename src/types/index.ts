@@ -11,3 +11,4 @@ export { DEFAULT_PREFERENCES } from "./notification-settings";
 export type { RentCalculation } from "./calculator";
 export type { RenewalProposal, RenewalProposalInsert, ProposalStatus, TenantResponse } from "./renewal-proposal";
 export type { Plan, PlanTier, PlanLimits, Subscription, SubscriptionStatus, SubscriptionInsert } from "./billing";
+export type { ExportLog, ExportLogInsert, ExportType } from "./export-log";

@@ -5,7 +5,9 @@ import Link from "next/link";
 import { Plus, Loader2, FileText } from "lucide-react";
 import { Button } from "@/ui/components/ui/button";
 import { Card, CardContent } from "@/ui/components/ui/card";
+import { ExportDropdown } from "@/ui/components/contracts/export-dropdown";
 import type { Contract, ContractStatus } from "@/types/contract";
+import type { PlanTier } from "@/types/billing";
 
 const statusConfig: Record<
   ContractStatus,
@@ -35,6 +37,7 @@ export default function ContractsPage() {
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<ContractStatus | "all">("all");
+  const [planTier, setPlanTier] = useState<PlanTier>("free");
 
   async function loadContracts() {
     try {
@@ -49,6 +52,10 @@ export default function ContractsPage() {
 
   useEffect(() => {
     loadContracts();
+    fetch("/api/plan")
+      .then((r) => r.json())
+      .then((d) => setPlanTier(d.tier))
+      .catch(() => {});
   }, []);
 
   const filtered =
@@ -79,6 +86,7 @@ export default function ContractsPage() {
             계약 등록
           </Button>
         </Link>
+        <ExportDropdown planTier={planTier} />
       </div>
 
       <div className="flex gap-2 flex-wrap">
