@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Plus, Loader2, FileText } from "lucide-react";
 import { Button } from "@/ui/components/ui/button";
 import { Card, CardContent } from "@/ui/components/ui/card";
@@ -34,6 +35,7 @@ const STATUS_FILTERS: { value: ContractStatus | "all"; label: string }[] = [
 ];
 
 export default function ContractsPage() {
+  const router = useRouter();
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<ContractStatus | "all">("all");
@@ -119,33 +121,39 @@ export default function ContractsPage() {
           {filtered.map((contract) => {
             const status = statusConfig[contract.status] ?? statusConfig.draft;
             return (
-              <Card key={contract.id}>
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-sm font-bold text-slate-800 truncate">
-                          {contract.tenantName}
-                        </h3>
-                        <span
-                          className={`rounded-full px-2 py-0.5 text-xs font-medium ${status.bgColor} ${status.color}`}
-                        >
-                          {status.label}
-                        </span>
+              <div
+                key={contract.id}
+                className="cursor-pointer"
+                onClick={() => router.push(`/contracts/${contract.id}`)}
+              >
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="text-sm font-bold text-slate-800 truncate">
+                            {contract.tenantName}
+                          </h3>
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-xs font-medium ${status.bgColor} ${status.color}`}
+                          >
+                            {status.label}
+                          </span>
+                        </div>
+                        <p className="text-sm text-slate-600">
+                          {contract.contractType === "전세"
+                            ? `보증금 ${contract.deposit.toLocaleString()}원`
+                            : `보증금 ${contract.deposit.toLocaleString()}원 / 월세 ${(contract.monthlyRent ?? 0).toLocaleString()}원`}
+                        </p>
+                        <p className="text-sm text-slate-600">
+                          {new Date(contract.startDate).toLocaleDateString("ko-KR")} ~{" "}
+                          {new Date(contract.endDate).toLocaleDateString("ko-KR")}
+                        </p>
                       </div>
-                      <p className="text-sm text-slate-600">
-                        {contract.contractType === "전세"
-                          ? `보증금 ${contract.deposit.toLocaleString()}원`
-                          : `보증금 ${contract.deposit.toLocaleString()}원 / 월세 ${(contract.monthlyRent ?? 0).toLocaleString()}원`}
-                      </p>
-                      <p className="text-sm text-slate-600">
-                        {new Date(contract.startDate).toLocaleDateString("ko-KR")} ~{" "}
-                        {new Date(contract.endDate).toLocaleDateString("ko-KR")}
-                      </p>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </div>
             );
           })}
         </div>

@@ -15,3 +15,4 @@ export type { ExportLog, ExportLogInsert, ExportType } from "./export-log";
 export type { RenewalFlowStep, RenewalFlowState } from "./renewal-flow";
 export { FLOW_STEP_LABELS, MESSAGE_GUIDELINES } from "./renewal-flow";
 export type { AuditLog, AuditLogInsert, AuditAction, TodayAction } from "./audit-log";
+export type { StorageFile, StorageFileInsert, ContractUpdate } from "./storage-file";
