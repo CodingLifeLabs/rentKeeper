@@ -96,6 +96,35 @@ export default function DashboardPage() {
     }
   }
 
+  async function handleSendNotification(contract: Contract) {
+    try {
+      const daysUntil = Math.ceil(
+        (new Date(contract.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+      );
+      const type = daysUntil <= 30 ? "d30" : "d90";
+
+      const res = await fetch("/api/notify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contractId: contract.id,
+          tenantName: contract.tenantName,
+          type,
+          message: `${contract.tenantName} 계약 만료 ${daysUntil}일 전 알림`,
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error ?? "알림 발송 실패");
+      }
+
+      alert("알림이 발송되었습니다.");
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "오류가 발생했습니다.");
+    }
+  }
+
   useEffect(() => {
     loadData();
   }, []);
@@ -172,6 +201,7 @@ export default function DashboardPage() {
                   key={contract.id}
                   contract={contract}
                   onSendProposal={handleSendProposal}
+                  onSendNotification={handleSendNotification}
                   proposalCount={
                     sendingProposal === contract.id ? 0 : undefined
                   }

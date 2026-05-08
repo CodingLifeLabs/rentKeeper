@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Send, Loader2 } from "lucide-react";
+import { Send, Loader2, Bell } from "lucide-react";
 import { Button } from "@/ui/components/ui/button";
 import { Card, CardContent } from "@/ui/components/ui/card";
 import type { Contract, ContractStatus } from "@/types/contract";
@@ -11,6 +11,7 @@ interface DashboardContractCardProps {
   contract: Contract;
   onSendProposal: (contract: Contract) => void;
   proposalCount?: number;
+  onSendNotification?: (contract: Contract) => void;
 }
 
 const statusConfig: Record<
@@ -78,12 +79,16 @@ export function DashboardContractCard({
   contract,
   onSendProposal,
   proposalCount = 0,
+  onSendNotification,
 }: DashboardContractCardProps) {
   const [sending, setSending] = useState(false);
+  const [notifying, setNotifying] = useState(false);
 
   const status = statusConfig[contract.status] || statusConfig.draft;
   const canSendProposal =
     contract.status === "expiring_30" || contract.status === "negotiating";
+  const canNotify =
+    contract.status === "expiring_90" || contract.status === "expiring_30";
 
   const handleSendProposal = () => {
     setSending(true);
@@ -91,6 +96,15 @@ export function DashboardContractCard({
       onSendProposal(contract);
     } finally {
       setSending(false);
+    }
+  };
+
+  const handleNotify = async () => {
+    setNotifying(true);
+    try {
+      await onSendNotification?.(contract);
+    } finally {
+      setNotifying(false);
     }
   };
 
@@ -140,6 +154,23 @@ export function DashboardContractCard({
                 <Send className="w-4 h-4" />
               )}
               제안서
+            </Button>
+          )}
+
+          {canNotify && (
+            <Button
+              size="sm"
+              onClick={handleNotify}
+              disabled={notifying}
+              variant="outline"
+              className="flex-shrink-0"
+            >
+              {notifying ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Bell className="w-4 h-4" />
+              )}
+              알림
             </Button>
           )}
         </div>

@@ -15,12 +15,12 @@ CREATE POLICY "Landlords can manage own export logs"
   USING (
     landlord_id IN (
       SELECT l.id FROM public.landlords l
-      WHERE l.user_id = auth.uid()
+      WHERE l.user_id = auth.uid()::text
     )
   )
   WITH CHECK (
     landlord_id IN (
       SELECT l.id FROM public.landlords l
-      WHERE l.user_id = auth.uid()
+      WHERE l.user_id = auth.uid()::text
     )
   );
