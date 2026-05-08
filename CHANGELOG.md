@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.7.0] - 2026-05-08
+
+### Added (Sprint 10) — EVALUATOR PASS
+- 계약 상세 페이지 (/contracts/[id]): 3-탭 구조 (정보/보관함/알림 이력)
+- 계약서 보관함: Supabase Storage 파일 업로드/목록/다운로드/삭제
+- 계약 정보 수정: 인라인 편집 모드 (임차인, 연락처, 보증금, 월세, 기간, 메모)
+- 만료 알림 배너: expiring_90/30 상태 시 D-Day 경고 표시
+- Storage bucket: contract-files (private, 10MB 제한)
+
+### Fixed
+- contract-files repo: 서비스 역할 키 사용으로 Storage RLS 우회 (인증은 route handler에서 처리)
+
 ## [0.6.0] - 2026-05-08
 
 ### Added (Sprint 9) — EVALUATOR PASS
