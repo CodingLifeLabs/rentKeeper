@@ -1,5 +1,9 @@
 import type { Plan, PlanTier } from "@/types/billing";
 
+// Server-only product IDs — never expose via NEXT_PUBLIC
+const POLAR_PRO_PRODUCT_ID = process.env.POLAR_PRO_PRODUCT_ID ?? "";
+const POLAR_BUSINESS_PRODUCT_ID = process.env.POLAR_BUSINESS_PRODUCT_ID ?? "";
+
 const PLANS: Record<PlanTier, Plan> = {
   free: {
     tier: "free",
@@ -43,8 +47,8 @@ const PLANS: Record<PlanTier, Plan> = {
       "만기 알림 (D-90, D-60, D-30, D-7)",
       "5GB 보관함",
     ],
-    polarProductId: process.env.NEXT_PUBLIC_POLAR_PRO_PRODUCT_ID,
-    polarPriceId: process.env.NEXT_PUBLIC_POLAR_PRO_PRICE_ID,
+    polarProductId: POLAR_PRO_PRODUCT_ID,
+    polarPriceId: process.env.POLAR_PRO_PRICE_ID,
   },
   business: {
     tier: "business",
@@ -70,8 +74,8 @@ const PLANS: Record<PlanTier, Plan> = {
       "커스텀 브랜딩",
       "우선 지원",
     ],
-    polarProductId: process.env.NEXT_PUBLIC_POLAR_BUSINESS_PRODUCT_ID,
-    polarPriceId: process.env.NEXT_PUBLIC_POLAR_BUSINESS_PRICE_ID,
+    polarProductId: POLAR_BUSINESS_PRODUCT_ID,
+    polarPriceId: process.env.POLAR_BUSINESS_PRICE_ID,
   },
 };
 
@@ -85,6 +89,14 @@ export function getAllPlans(): Plan[] {
 
 export function getPlanLimits(tier: PlanTier) {
   return PLANS[tier].limits;
+}
+
+/** Maps a Polar productId to its PlanTier using a server-side whitelist.
+ *  Returns null when the productId is unknown (e.g. test products, other orgs). */
+export function getTierByProductId(productId: string): PlanTier | null {
+  if (POLAR_PRO_PRODUCT_ID && productId === POLAR_PRO_PRODUCT_ID) return "pro";
+  if (POLAR_BUSINESS_PRODUCT_ID && productId === POLAR_BUSINESS_PRODUCT_ID) return "business";
+  return null;
 }
 
 export const POLAR_ACCESS_TOKEN = process.env.POLAR_ACCESS_TOKEN ?? "";

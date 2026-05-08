@@ -1,5 +1,31 @@
 # Changelog
 
+## [0.8.0] - 2026-05-08
+
+### Added (Sprint B/C/D — Polar Billing 강화)
+
+#### Sprint B — 한도·TOCTOU 방어
+- 계약 한도 DB 트리거: `enforce_contract_limit()` BEFORE INSERT 트리거 (`sql/sprint_b_migrations.sql`)
+- Partial unique index: `subscriptions(landlord_id)` WHERE active/past_due (동시 활성 구독 방지)
+- `canPerformAction` 개선: archived 상태 계약 한도 집계 제외 (`src/repo/subscription.ts`)
+- `/api/billing` rate limiting: landlord별 토큰버킷 적용, 429 + Retry-After 반환
+
+#### Sprint C — 시나리오 커버
+- `refunded` webhook 이벤트 처리: 즉시 free 전환 + 감사 로그 (`src/service/billing.ts`)
+- 다운그레이드 grace period: 14일 유예 + 자동 archive 정책 (`sql/sprint_c_migrations.sql`)
+- 구독 상태 동기화 cron: 일 1회 Polar 상태와 DB 정합성 검증 (`src/app/api/cron/sync-subscriptions/route.ts`)
+- Webhook cleanup cron: 30일 이상 지난 이벤트 자동 삭제 (`src/app/api/cron/cleanup-webhooks/route.ts`)
+- Dead-letter 큐: `attempt_count` + `last_error` 컬럼, 5회 연속 실패 시 분리
+
+#### Sprint D — UX·운영
+- Customer Portal 링크: 설정 페이지에 Polar 셀프서비스 포털 노출 (`src/app/(protected)/settings/page.tsx`)
+- 결제 처리 중 폴링 UX: `/billing/success` 페이지에서 Polar checkout 상태 폴링 (`src/app/(protected)/billing/success/page.tsx`)
+- 감사 로그: `audit_logs` 테이블 + service/repo 레이어 (`src/service/audit-log.ts`, `src/repo/audit-log.ts`)
+- Polar Sandbox 상품 등록: RentKeeper Pro (bad9a283, ₩9,900/월), RentKeeper Business (d393a4c3, ₩24,900/월)
+- Polar Webhook endpoint 등록: `https://rentkeeper.vercel.app/api/webhooks/polar`, 8개 이벤트 구독
+- `.env.local` 모든 Polar 환경변수 업데이트 (POLAR_ACCESS_TOKEN, POLAR_WEBHOOK_SECRET, 4개 Product/Price ID)
+- Vercel cron jobs: `vercel.json`에 sync-subscriptions(매일 0시), cleanup-webhooks(매주 일요일 3시) 등록
+
 ## [0.7.0] - 2026-05-08
 
 ### Added (Sprint 10) — EVALUATOR PASS

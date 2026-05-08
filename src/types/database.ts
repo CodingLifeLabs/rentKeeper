@@ -23,6 +23,7 @@ export interface Database {
           phone?: string | null;
           created_at?: string;
         };
+        Relationships: [];
       };
       properties: {
         Row: {
@@ -52,6 +53,7 @@ export interface Database {
           area_sqm?: number | null;
           created_at?: string;
         };
+        Relationships: [];
       };
       contracts: {
         Row: {
@@ -114,6 +116,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       renewal_proposals: {
         Row: {
@@ -149,6 +152,7 @@ export interface Database {
           sent_at?: string | null;
           responded_at?: string | null;
         };
+        Relationships: [];
       };
       communications: {
         Row: {
@@ -181,6 +185,7 @@ export interface Database {
           responded_at?: string | null;
           created_at?: string;
         };
+        Relationships: [];
       };
       notifications: {
         Row: {
@@ -204,6 +209,7 @@ export interface Database {
           sent_at?: string;
           channel?: string;
         };
+        Relationships: [];
       };
       notification_preferences: {
         Row: {
@@ -224,6 +230,7 @@ export interface Database {
           preferences?: Record<string, unknown>[];
           updated_at?: string;
         };
+        Relationships: [];
       };
       export_logs: {
         Row: {
@@ -250,6 +257,34 @@ export interface Database {
           row_count?: number;
           include_phone?: boolean;
         };
+        Relationships: [];
+      };
+      audit_logs: {
+        Row: {
+          id: string;
+          landlord_id: string;
+          action: string;
+          target_id: string | null;
+          metadata: Record<string, unknown> | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          landlord_id: string;
+          action: string;
+          target_id?: string | null;
+          metadata?: Record<string, unknown> | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          landlord_id?: string;
+          action?: string;
+          target_id?: string | null;
+          metadata?: Record<string, unknown> | null;
+          created_at?: string;
+        };
+        Relationships: [];
       };
       subscriptions: {
         Row: {
@@ -262,6 +297,7 @@ export interface Database {
           current_period_start: string;
           current_period_end: string;
           cancel_at_period_end: boolean;
+          grace_end_at: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -275,6 +311,7 @@ export interface Database {
           current_period_start?: string;
           current_period_end?: string;
           cancel_at_period_end?: boolean;
+          grace_end_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -288,13 +325,53 @@ export interface Database {
           current_period_start?: string;
           current_period_end?: string;
           cancel_at_period_end?: boolean;
+          grace_end_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
+      };
+      webhook_events: {
+        Row: {
+          id: string;
+          event_id: string;
+          event_type: string;
+          processed_at: string;
+          last_error: string | null;
+          attempt_count: number;
+          is_dead_letter: boolean;
+          payload: Record<string, unknown> | null;
+        };
+        Insert: {
+          id?: string;
+          event_id: string;
+          event_type: string;
+          processed_at?: string;
+          last_error?: string | null;
+          attempt_count?: number;
+          is_dead_letter?: boolean;
+          payload?: Record<string, unknown> | null;
+        };
+        Update: {
+          id?: string;
+          event_id?: string;
+          event_type?: string;
+          processed_at?: string;
+          last_error?: string | null;
+          attempt_count?: number;
+          is_dead_letter?: boolean;
+          payload?: Record<string, unknown> | null;
+        };
+        Relationships: [];
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      increment_webhook_attempt: {
+        Args: { p_event_id: string };
+        Returns: void;
+      };
+    };
     Enums: {
       contract_type: "월세" | "전세";
       contract_status: "draft" | "active" | "expiring_90" | "expiring_30" | "negotiating" | "renewed" | "move_out_pending" | "vacant" | "archived";

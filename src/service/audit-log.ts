@@ -29,6 +29,14 @@ export function formatAuditAction(action: AuditAction): string {
     contract_updated: "계약 수정",
     login: "로그인",
     settings_changed: "설정 변경",
+    // Billing
+    checkout_initiated: "구독 결제 시작",
+    subscription_activated: "구독 활성화",
+    subscription_updated: "구독 변경",
+    subscription_canceled: "구독 해지",
+    subscription_expired: "구독 만료",
+    subscription_past_due: "결제 지연",
+    subscription_refunded: "구독 환불",
   };
   return labels[action] ?? action;
 }

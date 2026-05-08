@@ -8,7 +8,15 @@ export type AuditAction =
   | "contract_created"
   | "contract_updated"
   | "login"
-  | "settings_changed";
+  | "settings_changed"
+  // Billing
+  | "checkout_initiated"
+  | "subscription_activated"
+  | "subscription_updated"
+  | "subscription_canceled"
+  | "subscription_expired"
+  | "subscription_past_due"
+  | "subscription_refunded";
 
 export interface AuditLog {
   id: string;

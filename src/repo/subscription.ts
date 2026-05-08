@@ -1,7 +1,9 @@
 import { createServerSupabaseClient } from "./supabase-server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Subscription, SubscriptionInsert, SubscriptionStatus, PlanTier } from "@/types/billing";
 import type { Database } from "@/types/database";
 
+type DbClient = SupabaseClient<Database>;
 type SubscriptionRow = Database["public"]["Tables"]["subscriptions"]["Row"];
 
 function toSubscription(row: SubscriptionRow): Subscription {
@@ -15,20 +17,28 @@ function toSubscription(row: SubscriptionRow): Subscription {
     currentPeriodStart: row.current_period_start,
     currentPeriodEnd: row.current_period_end,
     cancelAtPeriodEnd: row.cancel_at_period_end,
+    graceEndAt: row.grace_end_at,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
 }
 
+async function getClient(client?: DbClient): Promise<DbClient> {
+  return client ?? (await createServerSupabaseClient()) as DbClient;
+}
+
 export async function getSubscriptionByLandlord(
   landlordId: string,
+  client?: DbClient,
 ): Promise<Subscription | null> {
-  const supabase = await createServerSupabaseClient();
+  const supabase = await getClient(client);
   const { data, error } = await supabase
     .from("subscriptions")
     .select("*")
     .eq("landlord_id", landlordId)
-    .eq("status", "active")
+    .in("status", ["active", "past_due"])
+    .order("created_at", { ascending: false })
+    .limit(1)
     .maybeSingle();
 
   if (error || !data) return null;
@@ -37,8 +47,9 @@ export async function getSubscriptionByLandlord(
 
 export async function createSubscription(
   input: SubscriptionInsert,
+  client?: DbClient,
 ): Promise<Subscription> {
-  const supabase = await createServerSupabaseClient();
+  const supabase = await getClient(client);
   const { data, error } = await supabase
     .from("subscriptions")
     .insert({
@@ -71,24 +82,22 @@ export async function updateSubscription(
     currentPeriodStart?: string;
     currentPeriodEnd?: string;
     cancelAtPeriodEnd?: boolean;
+    graceEndAt?: string | null;
   },
+  client?: DbClient,
 ): Promise<Subscription> {
-  const supabase = await createServerSupabaseClient();
-  const update: Record<string, unknown> = {
+  const supabase = await getClient(client);
+  const update: Database["public"]["Tables"]["subscriptions"]["Update"] = {
     updated_at: new Date().toISOString(),
+    ...(input.planTier !== undefined && { plan_tier: input.planTier }),
+    ...(input.status !== undefined && { status: input.status }),
+    ...(input.polarSubscriptionId !== undefined && { polar_subscription_id: input.polarSubscriptionId }),
+    ...(input.polarCustomerId !== undefined && { polar_customer_id: input.polarCustomerId }),
+    ...(input.currentPeriodStart !== undefined && { current_period_start: input.currentPeriodStart }),
+    ...(input.currentPeriodEnd !== undefined && { current_period_end: input.currentPeriodEnd }),
+    ...(input.cancelAtPeriodEnd !== undefined && { cancel_at_period_end: input.cancelAtPeriodEnd }),
+    ...(input.graceEndAt !== undefined && { grace_end_at: input.graceEndAt }),
   };
-  if (input.planTier !== undefined) update.plan_tier = input.planTier;
-  if (input.status !== undefined) update.status = input.status;
-  if (input.polarSubscriptionId !== undefined)
-    update.polar_subscription_id = input.polarSubscriptionId;
-  if (input.polarCustomerId !== undefined)
-    update.polar_customer_id = input.polarCustomerId;
-  if (input.currentPeriodStart !== undefined)
-    update.current_period_start = input.currentPeriodStart;
-  if (input.currentPeriodEnd !== undefined)
-    update.current_period_end = input.currentPeriodEnd;
-  if (input.cancelAtPeriodEnd !== undefined)
-    update.cancel_at_period_end = input.cancelAtPeriodEnd;
 
   const { data, error } = await supabase
     .from("subscriptions")
@@ -104,8 +113,9 @@ export async function updateSubscription(
 
 export async function getSubscriptionByPolarId(
   polarSubscriptionId: string,
+  client?: DbClient,
 ): Promise<Subscription | null> {
-  const supabase = await createServerSupabaseClient();
+  const supabase = await getClient(client);
   const { data, error } = await supabase
     .from("subscriptions")
     .select("*")
@@ -116,14 +126,30 @@ export async function getSubscriptionByPolarId(
   return toSubscription(data as unknown as SubscriptionRow);
 }
 
+export async function getAllSubscriptionsForSync(
+  client?: DbClient,
+): Promise<Subscription[]> {
+  const supabase = await getClient(client);
+  const { data, error } = await supabase
+    .from("subscriptions")
+    .select("*")
+    .not("polar_subscription_id", "is", null)
+    .in("status", ["active", "past_due"]);
+
+  if (error) throw new Error(`Failed to fetch subscriptions for sync: ${error.message}`);
+  return (data ?? []).map((row) => toSubscription(row as unknown as SubscriptionRow));
+}
+
 export async function countContractsByLandlord(
   landlordId: string,
+  client?: DbClient,
 ): Promise<number> {
-  const supabase = await createServerSupabaseClient();
+  const supabase = await getClient(client);
   const { count, error } = await supabase
     .from("contracts")
-    .select("id", { count: "exact", head: true })
-    .eq("landlord_id", landlordId);
+    .select("id, properties!inner(landlord_id)", { count: "exact", head: true })
+    .eq("properties.landlord_id", landlordId)
+    .not("status", "eq", "archived");
 
   if (error)
     throw new Error(`Failed to count contracts: ${error.message}`);

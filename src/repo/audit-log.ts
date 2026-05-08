@@ -1,8 +1,19 @@
 import { createServerSupabaseClient } from "./supabase-server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AuditLog, AuditLogInsert, AuditAction } from "@/types/audit-log";
+import type { Database } from "@/types/database";
 
-export async function createAuditLog(insert: AuditLogInsert): Promise<AuditLog> {
-  const supabase = await createServerSupabaseClient();
+type DbClient = SupabaseClient<Database>;
+
+async function getClient(client?: DbClient): Promise<DbClient> {
+  return client ?? ((await createServerSupabaseClient()) as DbClient);
+}
+
+export async function createAuditLog(
+  insert: AuditLogInsert,
+  client?: DbClient,
+): Promise<AuditLog> {
+  const supabase = await getClient(client);
 
   const { data, error } = await supabase
     .from("audit_logs")
