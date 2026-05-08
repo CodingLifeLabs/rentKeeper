@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.6.0] - 2026-05-08
+
+### Added (Sprint 9) — EVALUATOR PASS
+- Resend 이메일 발송: lazy init 클라이언트, 만기 알림 HTML 템플릿
+- 이메일 템플릿: 임차인명/만기일/주소/대시보드 링크 포함
+- 대시보드 알림 버튼: expiring_90/30 계약에 Bell 아이콘 "알림" 버튼
+- /api/notify: 알림 발송 → notifications + communications 테이블 기록
+- CommunicationList 컴포넌트: 이메일/카카오 채널 아이콘, 타임스탬프
+- RESEND_API_KEY 없으면 mock 모드 자동 전환
+
 ## [0.5.1] - 2026-05-08
 
 ### Added
