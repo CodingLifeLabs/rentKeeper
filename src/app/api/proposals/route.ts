@@ -48,7 +48,7 @@ export async function POST(request: Request) {
   await recordAudit(landlord.id, "proposal_sent", proposal.id, {
     contractId: input.contractId,
     proposedRent: input.proposedRent,
-  });
+  }).catch(() => {});
 
   return NextResponse.json(proposal, { status: 201 });
 }

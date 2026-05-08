@@ -37,7 +37,7 @@ export async function GET() {
     exportType: "zip",
     rowCount: files.length,
     includePhone: false,
-  });
+  }).catch(() => {});
 
   return NextResponse.json({
     files,

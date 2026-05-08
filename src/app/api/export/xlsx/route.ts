@@ -33,7 +33,7 @@ export async function GET(request: Request) {
     exportType: "xlsx",
     rowCount: contracts.length,
     includePhone,
-  });
+  }).catch(() => {});
 
   return new Response(new Uint8Array(buffer), {
     headers: {

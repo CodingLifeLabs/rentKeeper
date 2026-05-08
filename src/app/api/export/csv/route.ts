@@ -24,9 +24,9 @@ export async function GET(request: Request) {
     exportType: "csv",
     rowCount: contracts.length,
     includePhone,
-  });
+  }).catch(() => {});
 
-  await recordAudit(landlord.id, "export_csv", undefined, { rowCount: contracts.length, includePhone });
+  await recordAudit(landlord.id, "export_csv", undefined, { rowCount: contracts.length, includePhone }).catch(() => {});
 
   return new Response(csv, {
     headers: {

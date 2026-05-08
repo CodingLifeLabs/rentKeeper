@@ -12,7 +12,7 @@ export async function GET() {
   }
 
   const landlord = await getOrCreateLandlord(user.id, user.email ?? "");
-  const logs = await getAuditHistory(landlord.id, 100);
+  const logs = await getAuditHistory(landlord.id, 100).catch(() => []);
 
   return NextResponse.json(logs);
 }
