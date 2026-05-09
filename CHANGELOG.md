@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.9.0] - 2026-05-09
+
+### Added (Sprint 11 — 버그 수정 + 특약 템플릿) — EVALUATOR PASS
+
+- **특약 템플릿 라이브러리**: 8개 카테고리, 40+ 항목 정적 데이터 (`src/config/clause-templates.ts`)
+- **ClauseTemplatePicker 모달**: 카테고리 탭 + 템플릿 목록 + 미리보기 + 삽입/취소 (`src/ui/components/contracts/clause-template-picker.tsx`)
+- **계약 수정 화면 연결**: 메모 필드 헤더에 "특약 템플릿" 버튼 (`src/app/(protected)/contracts/[id]/page.tsx`)
+- **계약 등록 화면 연결**: OcrReviewForm 메모 필드에 "특약 템플릿" 버튼 (`src/app/(protected)/contracts/new/page.tsx`)
+
+### Fixed
+
+- **Vercel cron 버그**: `/api/cron/expiry-check` POST → GET 핸들러로 변경 (Vercel cron은 GET으로 호출)
+
 ## [0.8.0] - 2026-05-08
 
 ### Added (Sprint B/C/D — Polar Billing 강화)
