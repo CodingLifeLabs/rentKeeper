@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAuthenticatedUser, getOrCreateLandlord } from "@/service/auth";
+import { canPerformAction } from "@/service/billing";
 import { sendRenewalProposal } from "@/service/proposal";
 import { getProposalsByContract } from "@/repo/renewal-proposal";
 import { recordAudit } from "@/service/audit-log";
@@ -32,6 +33,14 @@ export async function POST(request: Request) {
   }
 
   const landlord = await getOrCreateLandlord(user.id, user.email ?? "");
+
+  const gate = await canPerformAction(landlord.id, "send_proposal");
+  if (!gate.allowed) {
+    return NextResponse.json(
+      { error: gate.reason, code: "plan_limit" },
+      { status: 403 },
+    );
+  }
 
   const body = await request.json();
   const input = body as RenewalProposalInsert;

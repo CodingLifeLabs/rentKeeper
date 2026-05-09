@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, FileText } from "lucide-react";
+import { ArrowLeft, FileText, Lock } from "lucide-react";
 import Link from "next/link";
 import { UploadDropzone } from "@/ui/components/contracts/upload-dropzone";
 import { OcrReviewForm } from "@/ui/components/contracts/ocr-review-form";
@@ -11,12 +11,18 @@ import type { OcrJobResult, ContractFormData } from "@/types/ocr";
 export default function NewContractPage() {
   const router = useRouter();
   const [ocrResult, setOcrResult] = useState<OcrJobResult | null>(null);
+  const [submitError, setSubmitError] = useState<{
+    message: string;
+    isPlanLimit: boolean;
+  } | null>(null);
 
   const handleOcrComplete = (result: OcrJobResult) => {
     setOcrResult(result);
+    setSubmitError(null);
   };
 
   const handleConfirm = async (formData: ContractFormData) => {
+    setSubmitError(null);
     try {
       const res = await fetch("/api/contracts", {
         method: "POST",
@@ -31,11 +37,14 @@ export default function NewContractPage() {
       if (res.ok) {
         router.push("/dashboard");
       } else {
-        const err = await res.json();
-        alert(err.error ?? "계약 등록에 실패했습니다.");
+        const err: { error?: string; code?: string } = await res.json();
+        setSubmitError({
+          message: err.error ?? "계약 등록에 실패했습니다.",
+          isPlanLimit: res.status === 403 && err.code === "plan_limit",
+        });
       }
     } catch {
-      alert("계약 등록 중 오류가 발생했습니다.");
+      setSubmitError({ message: "계약 등록 중 오류가 발생했습니다.", isPlanLimit: false });
     }
   };
 
@@ -68,6 +77,29 @@ export default function NewContractPage() {
 
       <div className="space-y-6">
         <UploadDropzone onOcrComplete={handleOcrComplete} />
+
+        {submitError && (
+          <div
+            className={`rounded-xl p-4 text-sm flex items-start gap-3 ${
+              submitError.isPlanLimit
+                ? "bg-amber-50 border border-amber-200 text-amber-700"
+                : "bg-red-50 border border-red-200 text-red-600"
+            }`}
+          >
+            {submitError.isPlanLimit && <Lock size={16} className="mt-0.5 shrink-0" />}
+            <div className="flex-1">
+              <p className="font-medium">{submitError.message}</p>
+              {submitError.isPlanLimit && (
+                <Link
+                  href="/pricing"
+                  className="inline-block mt-2 text-xs font-semibold text-white bg-[#1A3C5E] hover:bg-[#2a5280] px-3 py-1.5 rounded-lg transition-colors"
+                >
+                  플랜 업그레이드 →
+                </Link>
+              )}
+            </div>
+          </div>
+        )}
 
         {ocrResult && ocrResult.result && (
           <OcrReviewForm

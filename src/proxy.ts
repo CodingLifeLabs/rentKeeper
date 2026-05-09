@@ -41,6 +41,13 @@ export function proxy(request: NextRequest) {
 
   return supabase.auth.getUser().then(({ data: { user } }) => {
     if (!user) {
+      // API routes must receive JSON, not an HTML redirect
+      if (pathname.startsWith("/api/")) {
+        return NextResponse.json(
+          { error: "인증이 필요합니다." },
+          { status: 401 },
+        );
+      }
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
       return NextResponse.redirect(loginUrl);

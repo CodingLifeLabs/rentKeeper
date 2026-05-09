@@ -1,8 +1,24 @@
 import { NextResponse } from "next/server";
 import { processOcr } from "@/service/ocr";
+import { getAuthenticatedUser, getOrCreateLandlord } from "@/service/auth";
+import { canPerformAction } from "@/service/billing";
 import type { OcrJobRequest } from "@/types/ocr";
 
 export async function POST(request: Request) {
+  const user = await getAuthenticatedUser();
+  if (!user) {
+    return NextResponse.json({ error: "인증이 필요합니다." }, { status: 401 });
+  }
+
+  const landlord = await getOrCreateLandlord(user.id, user.email ?? "");
+  const gate = await canPerformAction(landlord.id, "use_ocr");
+  if (!gate.allowed) {
+    return NextResponse.json(
+      { error: gate.reason, code: "plan_limit" },
+      { status: 403 },
+    );
+  }
+
   const formData = await request.formData();
   const file = formData.get("file") as File | null;
 
