@@ -70,9 +70,9 @@ export async function getCheckoutUrl(
     throw new Error("Landlord not found");
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? process.env.NEXT_PUBLIC_URL;
   if (process.env.NODE_ENV === "production" && !baseUrl) {
-    throw new Error("NEXT_PUBLIC_BASE_URL is required in production");
+    throw new Error("NEXT_PUBLIC_BASE_URL (or NEXT_PUBLIC_URL) is required in production");
   }
   const resolvedBaseUrl = baseUrl ?? "http://localhost:3000";
 

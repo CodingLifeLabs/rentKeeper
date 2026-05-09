@@ -158,8 +158,8 @@ export function UploadDropzone({ onOcrComplete }: UploadDropzoneProps) {
         type="file"
         accept="image/jpeg,image/png,image/webp,application/pdf"
         onChange={handleChange}
-        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-        disabled={isProcessing}
+        className={`absolute inset-0 w-full h-full opacity-0 ${isPlanLimit ? "pointer-events-none" : "cursor-pointer"}`}
+        disabled={isProcessing || isPlanLimit}
       />
 
       {error && (
