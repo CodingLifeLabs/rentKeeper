@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { registerContract } from "@/service/contract-registration";
 import { getAuthenticatedUser, getOrCreateLandlord } from "@/service/auth";
+import { canPerformAction } from "@/service/billing";
 import { getContractsByLandlord } from "@/repo/contract";
 import { getPropertiesByLandlord, createProperty } from "@/repo/property";
 import type { ContractFormData } from "@/types/ocr";
 import type { OcrResult } from "@/types/ocr";
 
-export async function GET(request: Request) {
+export async function GET() {
   const user = await getAuthenticatedUser();
   if (!user) {
     return NextResponse.json({ error: "인증이 필요합니다." }, { status: 401 });
@@ -41,6 +42,14 @@ export async function POST(request: Request) {
   }
 
   const landlord = await getOrCreateLandlord(user.id, user.email ?? "");
+
+  const gate = await canPerformAction(landlord.id, "create_contract");
+  if (!gate.allowed) {
+    return NextResponse.json(
+      { error: gate.reason, code: "plan_limit" },
+      { status: 403 },
+    );
+  }
 
   const body = await request.json();
   const { formData, ocrResult, originalFileUrl } = body as {

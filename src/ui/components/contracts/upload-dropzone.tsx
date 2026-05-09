@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Upload, X, Loader2 } from "lucide-react";
+import { Upload, X, Loader2, Lock } from "lucide-react";
+import Link from "next/link";
 import { cn } from "@/config/utils";
 import type { OcrJobResult } from "@/types/ocr";
 
@@ -13,11 +14,13 @@ export function UploadDropzone({ onOcrComplete }: UploadDropzoneProps) {
   const [isDragOver, setIsDragOver] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isPlanLimit, setIsPlanLimit] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
 
   const processFile = useCallback(
     async (file: File) => {
       setError(null);
+      setIsPlanLimit(false);
       setIsProcessing(true);
 
       const validTypes = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
@@ -47,10 +50,15 @@ export function UploadDropzone({ onOcrComplete }: UploadDropzoneProps) {
           body: formData,
         });
 
-        const result: OcrJobResult = await res.json();
+        const result: OcrJobResult & { error?: string; code?: string } =
+          await res.json();
 
         if (!res.ok) {
-          setError((result as unknown as { error: string }).error ?? "OCR 처리에 실패했습니다.");
+          const msg = result.error ?? "OCR 처리에 실패했습니다.";
+          if (res.status === 403 && result.code === "plan_limit") {
+            setIsPlanLimit(true);
+          }
+          setError(msg);
           return;
         }
 
@@ -86,6 +94,7 @@ export function UploadDropzone({ onOcrComplete }: UploadDropzoneProps) {
     if (preview) URL.revokeObjectURL(preview);
     setPreview(null);
     setError(null);
+    setIsPlanLimit(false);
   };
 
   return (
@@ -154,9 +163,25 @@ export function UploadDropzone({ onOcrComplete }: UploadDropzoneProps) {
       />
 
       {error && (
-        <p className="text-xs text-[#FF4D4D] mt-3 text-center font-medium">
-          {error}
-        </p>
+        <div className="mt-3 text-center">
+          {isPlanLimit ? (
+            <div className="flex flex-col items-center gap-2">
+              <div className="flex items-center gap-1.5 text-amber-600">
+                <Lock size={14} />
+                <p className="text-xs font-medium">{error}</p>
+              </div>
+              <Link
+                href="/pricing"
+                className="inline-flex items-center gap-1 text-xs font-semibold text-white bg-[#1A3C5E] hover:bg-[#2a5280] px-3 py-1.5 rounded-lg transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              >
+                플랜 업그레이드 →
+              </Link>
+            </div>
+          ) : (
+            <p className="text-xs text-[#FF4D4D] font-medium">{error}</p>
+          )}
+        </div>
       )}
     </div>
   );
