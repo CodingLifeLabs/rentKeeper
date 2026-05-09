@@ -17,7 +17,8 @@ export default function BillingSuccessPage() {
 
   const [state, setState] = useState<PollState>("polling");
   const [elapsedMs, setElapsedMs] = useState(0);
-  const startedAt = useRef(Date.now());
+  // Initialized to 0; set in the effect to avoid calling Date.now() during render.
+  const startedAt = useRef(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   function stopPolling() {
@@ -58,6 +59,7 @@ export default function BillingSuccessPage() {
   }
 
   useEffect(() => {
+    startedAt.current = Date.now(); // Initialize here to avoid impure call during render.
     // Kick off immediately then repeat.
     poll();
     intervalRef.current = setInterval(poll, POLL_INTERVAL_MS);

@@ -10,6 +10,7 @@ import {
   createSubscription,
   updateSubscription,
   getSubscriptionByPolarId,
+  getAllSubscriptionsForSync,
   countContractsByLandlord,
 } from "./subscription";
 
@@ -25,6 +26,10 @@ describe("subscription repo", () => {
       insert: jest.fn(() => mockClient),
       update: jest.fn(() => mockClient),
       eq: jest.fn(() => mockClient),
+      in: jest.fn(() => mockClient),
+      not: jest.fn(() => mockClient),
+      order: jest.fn(() => mockClient),
+      limit: jest.fn(() => mockClient),
       maybeSingle: jest.fn(),
       single: jest.fn(),
     };
@@ -178,21 +183,63 @@ describe("subscription repo", () => {
     });
   });
 
+  describe("getAllSubscriptionsForSync", () => {
+    it("returns mapped subscriptions", async () => {
+      const rows = [
+        {
+          id: "sub-1",
+          landlord_id: "ll-1",
+          plan_tier: "pro",
+          polar_subscription_id: "ps-1",
+          polar_customer_id: "pc-1",
+          status: "active",
+          current_period_start: "2024-01-01T00:00:00Z",
+          current_period_end: "2024-02-01T00:00:00Z",
+          cancel_at_period_end: false,
+          grace_end_at: null,
+          created_at: "2024-01-01T00:00:00Z",
+          updated_at: "2024-01-01T00:00:00Z",
+        },
+      ];
+      mockClient.in.mockResolvedValue({ data: rows, error: null });
+
+      const result = await getAllSubscriptionsForSync();
+      expect(result).toHaveLength(1);
+      expect(result[0].polarSubscriptionId).toBe("ps-1");
+    });
+
+    it("returns empty array when no data", async () => {
+      mockClient.in.mockResolvedValue({ data: null, error: null });
+      const result = await getAllSubscriptionsForSync();
+      expect(result).toEqual([]);
+    });
+
+    it("throws on database error", async () => {
+      mockClient.in.mockResolvedValue({
+        data: null,
+        error: { message: "sync fail" },
+      });
+      await expect(getAllSubscriptionsForSync()).rejects.toThrow(
+        "Failed to fetch subscriptions for sync: sync fail",
+      );
+    });
+  });
+
   describe("countContractsByLandlord", () => {
     it("returns count from database", async () => {
-      mockClient.eq.mockResolvedValue({ count: 15, error: null });
+      mockClient.not.mockResolvedValue({ count: 15, error: null });
       const result = await countContractsByLandlord("ll-1");
       expect(result).toBe(15);
     });
 
     it("returns 0 when count is null", async () => {
-      mockClient.eq.mockResolvedValue({ count: null, error: null });
+      mockClient.not.mockResolvedValue({ count: null, error: null });
       const result = await countContractsByLandlord("ll-1");
       expect(result).toBe(0);
     });
 
     it("throws on database error", async () => {
-      mockClient.eq.mockResolvedValue({
+      mockClient.not.mockResolvedValue({
         count: null,
         error: { message: "fail" },
       });

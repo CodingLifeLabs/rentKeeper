@@ -14,10 +14,12 @@ import {
   Trash2,
   Mail,
   FileText,
+  BookOpen,
 } from "lucide-react";
 import { Button } from "@/ui/components/ui/button";
 import { Card, CardContent } from "@/ui/components/ui/card";
 import { CommunicationList } from "@/ui/components/communications/communication-list";
+import { ClauseTemplatePicker } from "@/ui/components/contracts/clause-template-picker";
 import type { Contract, ContractStatus } from "@/types/contract";
 import type { Property } from "@/types/property";
 import type { ContractUpdate } from "@/types/storage-file";
@@ -60,6 +62,7 @@ export default function ContractDetailPage() {
   const [files, setFiles] = useState<StoredFile[]>([]);
   const [uploading, setUploading] = useState(false);
   const [daysUntil, setDaysUntil] = useState<number | null>(null);
+  const [showClausePicker, setShowClausePicker] = useState(false);
 
   const loadContract = useCallback(async () => {
     try {
@@ -266,7 +269,38 @@ export default function ContractDetailPage() {
                 <FieldEdit label="월세" type="number" value={String(editForm.monthlyRent ?? 0)} onChange={(v) => setEditForm((p) => ({ ...p, monthlyRent: Number(v) }))} />
                 <FieldEdit label="시작일" type="date" value={editForm.startDate ?? ""} onChange={(v) => setEditForm((p) => ({ ...p, startDate: v }))} />
                 <FieldEdit label="만기일" type="date" value={editForm.endDate ?? ""} onChange={(v) => setEditForm((p) => ({ ...p, endDate: v }))} />
-                <FieldEdit label="메모" value={editForm.notes ?? ""} onChange={(v) => setEditForm((p) => ({ ...p, notes: v }))} textarea />
+                <div className="flex items-start gap-3">
+                  <span className="text-xs text-slate-400 w-24 shrink-0 pt-2.5">메모</span>
+                  <div className="flex-1 space-y-1">
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => setShowClausePicker(true)}
+                        className="inline-flex items-center gap-1 text-xs font-medium text-[#1A3C5E] hover:text-[#1A3C5E]/80 transition-colors"
+                      >
+                        <BookOpen size={12} />
+                        특약 템플릿
+                      </button>
+                    </div>
+                    <textarea
+                      value={editForm.notes ?? ""}
+                      onChange={(e) => setEditForm((p) => ({ ...p, notes: e.target.value }))}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:border-[#1A3C5E] resize-none"
+                      rows={3}
+                    />
+                  </div>
+                </div>
+                {showClausePicker && (
+                  <ClauseTemplatePicker
+                    onInsert={(text) =>
+                      setEditForm((p) => ({
+                        ...p,
+                        notes: p.notes ? `${p.notes}\n${text}` : text,
+                      }))
+                    }
+                    onClose={() => setShowClausePicker(false)}
+                  />
+                )}
               </div>
             ) : (
               <div className="space-y-4">

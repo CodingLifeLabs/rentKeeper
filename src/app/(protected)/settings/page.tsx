@@ -89,6 +89,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     loadProfile();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- async best-effort fetch, setState is guarded by res.ok
     loadBilling();
     loadAuditLogs();
   }, []);
