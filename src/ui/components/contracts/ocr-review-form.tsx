@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { AlertTriangle, CheckCircle2, Loader2 } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Loader2, BookOpen } from "lucide-react";
 import { cn } from "@/config/utils";
 import { Button } from "@/ui/components/ui/button";
 import { Card, CardHeader, CardContent } from "@/ui/components/ui/card";
+import { ClauseTemplatePicker } from "@/ui/components/contracts/clause-template-picker";
 import type { OcrJobResult, ContractFormData } from "@/types/ocr";
 
 interface OcrReviewFormProps {
@@ -79,6 +80,7 @@ export function OcrReviewForm({
   );
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPicker, setShowPicker] = useState(false);
 
   const result = ocrResult.result;
 
@@ -177,9 +179,19 @@ export function OcrReviewForm({
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-sm font-semibold text-slate-800">
-              특약사항 메모
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-semibold text-slate-800">
+                특약사항 메모
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowPicker(true)}
+                className="inline-flex items-center gap-1 text-xs font-medium text-[#1A3C5E] hover:text-[#1A3C5E]/80 transition-colors"
+              >
+                <BookOpen size={12} />
+                템플릿 선택
+              </button>
+            </div>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
@@ -188,6 +200,13 @@ export function OcrReviewForm({
               className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#1A3C5E] focus:border-transparent resize-none"
             />
           </div>
+
+          {showPicker && (
+            <ClauseTemplatePicker
+              onInsert={(text) => setNotes((prev) => (prev ? `${prev}\n${text}` : text))}
+              onClose={() => setShowPicker(false)}
+            />
+          )}
 
           <div className="flex items-center justify-end gap-3 pt-2">
             <Button variant="outline" type="button" onClick={onCancel}>

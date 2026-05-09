@@ -3,6 +3,14 @@
     {
       "path": "/api/cron/expiry-check",
       "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/sync-subscriptions",
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron/cleanup-webhooks",
+      "schedule": "0 3 * * *"
     }
   ]
 }

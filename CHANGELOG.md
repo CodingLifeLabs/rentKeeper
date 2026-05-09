@@ -1,5 +1,56 @@
 # Changelog
 
+## [0.9.0] - 2026-05-09
+
+### Added (Sprint 11 — 버그 수정 + 특약 템플릿) — EVALUATOR PASS
+
+- **특약 템플릿 라이브러리**: 8개 카테고리, 40+ 항목 정적 데이터 (`src/config/clause-templates.ts`)
+- **ClauseTemplatePicker 모달**: 카테고리 탭 + 템플릿 목록 + 미리보기 + 삽입/취소 (`src/ui/components/contracts/clause-template-picker.tsx`)
+- **계약 수정 화면 연결**: 메모 필드 헤더에 "특약 템플릿" 버튼 (`src/app/(protected)/contracts/[id]/page.tsx`)
+- **계약 등록 화면 연결**: OcrReviewForm 메모 필드에 "특약 템플릿" 버튼 (`src/app/(protected)/contracts/new/page.tsx`)
+
+### Fixed
+
+- **Vercel cron 버그**: `/api/cron/expiry-check` POST → GET 핸들러로 변경 (Vercel cron은 GET으로 호출)
+
+## [0.8.0] - 2026-05-08
+
+### Added (Sprint B/C/D — Polar Billing 강화)
+
+#### Sprint B — 한도·TOCTOU 방어
+- 계약 한도 DB 트리거: `enforce_contract_limit()` BEFORE INSERT 트리거 (`sql/sprint_b_migrations.sql`)
+- Partial unique index: `subscriptions(landlord_id)` WHERE active/past_due (동시 활성 구독 방지)
+- `canPerformAction` 개선: archived 상태 계약 한도 집계 제외 (`src/repo/subscription.ts`)
+- `/api/billing` rate limiting: landlord별 토큰버킷 적용, 429 + Retry-After 반환
+
+#### Sprint C — 시나리오 커버
+- `refunded` webhook 이벤트 처리: 즉시 free 전환 + 감사 로그 (`src/service/billing.ts`)
+- 다운그레이드 grace period: 14일 유예 + 자동 archive 정책 (`sql/sprint_c_migrations.sql`)
+- 구독 상태 동기화 cron: 일 1회 Polar 상태와 DB 정합성 검증 (`src/app/api/cron/sync-subscriptions/route.ts`)
+- Webhook cleanup cron: 30일 이상 지난 이벤트 자동 삭제 (`src/app/api/cron/cleanup-webhooks/route.ts`)
+- Dead-letter 큐: `attempt_count` + `last_error` 컬럼, 5회 연속 실패 시 분리
+
+#### Sprint D — UX·운영
+- Customer Portal 링크: 설정 페이지에 Polar 셀프서비스 포털 노출 (`src/app/(protected)/settings/page.tsx`)
+- 결제 처리 중 폴링 UX: `/billing/success` 페이지에서 Polar checkout 상태 폴링 (`src/app/(protected)/billing/success/page.tsx`)
+- 감사 로그: `audit_logs` 테이블 + service/repo 레이어 (`src/service/audit-log.ts`, `src/repo/audit-log.ts`)
+- Polar Sandbox 상품 등록: RentKeeper Pro (bad9a283, ₩9,900/월), RentKeeper Business (d393a4c3, ₩24,900/월)
+- Polar Webhook endpoint 등록: `https://rentkeeper.vercel.app/api/webhooks/polar`, 8개 이벤트 구독
+- `.env.local` 모든 Polar 환경변수 업데이트 (POLAR_ACCESS_TOKEN, POLAR_WEBHOOK_SECRET, 4개 Product/Price ID)
+- Vercel cron jobs: `vercel.json`에 sync-subscriptions(매일 0시), cleanup-webhooks(매주 일요일 3시) 등록
+
+## [0.7.0] - 2026-05-08
+
+### Added (Sprint 10) — EVALUATOR PASS
+- 계약 상세 페이지 (/contracts/[id]): 3-탭 구조 (정보/보관함/알림 이력)
+- 계약서 보관함: Supabase Storage 파일 업로드/목록/다운로드/삭제
+- 계약 정보 수정: 인라인 편집 모드 (임차인, 연락처, 보증금, 월세, 기간, 메모)
+- 만료 알림 배너: expiring_90/30 상태 시 D-Day 경고 표시
+- Storage bucket: contract-files (private, 10MB 제한)
+
+### Fixed
+- contract-files repo: 서비스 역할 키 사용으로 Storage RLS 우회 (인증은 route handler에서 처리)
+
 ## [0.6.0] - 2026-05-08
 
 ### Added (Sprint 9) — EVALUATOR PASS

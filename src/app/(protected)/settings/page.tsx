@@ -1,19 +1,34 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Loader2, User, Bell, CreditCard, LogOut, FileText } from "lucide-react";
+import { Loader2, User, Bell, CreditCard, LogOut, FileText, ExternalLink, Zap } from "lucide-react";
 import { Button } from "@/ui/components/ui/button";
 import { Card, CardContent } from "@/ui/components/ui/card";
 import Link from "next/link";
 import type { Landlord } from "@/types/landlord";
 import type { AuditLog } from "@/types/audit-log";
+import type { PlanTier, Subscription } from "@/types/billing";
 import { formatAuditAction } from "@/service/audit-log";
+
+const PLAN_LABELS: Record<PlanTier, string> = {
+  free: "Free",
+  pro: "Pro",
+  business: "Business",
+};
+
+const PLAN_BADGE_COLORS: Record<PlanTier, string> = {
+  free: "bg-slate-100 text-slate-500",
+  pro: "bg-blue-50 text-blue-600",
+  business: "bg-violet-50 text-violet-600",
+};
 
 export default function SettingsPage() {
   const [landlord, setLandlord] = useState<Landlord | null>(null);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
   const [logsLoading, setLogsLoading] = useState(true);
+  const [portalLoading, setPortalLoading] = useState(false);
 
   async function loadProfile() {
     try {
@@ -23,6 +38,18 @@ export default function SettingsPage() {
       if (data) setLandlord(data);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function loadBilling() {
+    try {
+      const res = await fetch("/api/billing");
+      if (res.ok) {
+        const data = await res.json() as { subscription: Subscription | null };
+        setSubscription(data.subscription);
+      }
+    } catch {
+      // Non-critical — best effort
     }
   }
 
@@ -38,8 +65,32 @@ export default function SettingsPage() {
     }
   }
 
+  async function handleOpenPortal() {
+    setPortalLoading(true);
+    try {
+      const res = await fetch("/api/billing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "portal" }),
+      });
+      if (!res.ok) {
+        const { error } = await res.json() as { error?: string };
+        alert(error ?? "포털 링크 생성에 실패했습니다.");
+        return;
+      }
+      const { url } = await res.json() as { url: string };
+      window.location.href = url;
+    } catch {
+      alert("포털 링크 생성 중 오류가 발생했습니다.");
+    } finally {
+      setPortalLoading(false);
+    }
+  }
+
   useEffect(() => {
     loadProfile();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- async best-effort fetch, setState is guarded by res.ok
+    loadBilling();
     loadAuditLogs();
   }, []);
 
@@ -107,6 +158,76 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
+      {/* Subscription / billing card */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <CreditCard size={16} className="text-slate-400" />
+            <h3 className="text-sm font-bold text-slate-800">구독 관리</h3>
+          </div>
+
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="text-xs text-slate-400">현재 플랜</p>
+              <div className="flex items-center gap-2 mt-0.5">
+                <span
+                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${
+                    PLAN_BADGE_COLORS[subscription?.planTier ?? "free"]
+                  }`}
+                >
+                  {subscription?.planTier !== "free" && (
+                    <Zap size={10} className="shrink-0" />
+                  )}
+                  {PLAN_LABELS[subscription?.planTier ?? "free"]}
+                </span>
+                {subscription?.status === "past_due" && (
+                  <span className="text-xs text-amber-500 font-medium">
+                    결제 지연
+                  </span>
+                )}
+                {subscription?.cancelAtPeriodEnd && (
+                  <span className="text-xs text-slate-400">
+                    (기간 만료 후 해지)
+                  </span>
+                )}
+              </div>
+            </div>
+            {subscription?.currentPeriodEnd && (
+              <div className="text-right">
+                <p className="text-xs text-slate-400">갱신일</p>
+                <p className="text-sm font-medium text-slate-700">
+                  {new Date(subscription.currentPeriodEnd).toLocaleDateString(
+                    "ko-KR",
+                    { month: "short", day: "numeric" },
+                  )}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {subscription && subscription.planTier !== "free" ? (
+            <Button
+              onClick={handleOpenPortal}
+              disabled={portalLoading}
+              className="w-full bg-[#1B3A6B] hover:bg-[#15305a] text-white text-sm"
+            >
+              {portalLoading ? (
+                <Loader2 size={14} className="animate-spin mr-2" />
+              ) : (
+                <ExternalLink size={14} className="mr-2" />
+              )}
+              Polar 고객 포털 열기
+            </Button>
+          ) : (
+            <Link href="/pricing">
+              <Button className="w-full bg-[#1B3A6B] hover:bg-[#15305a] text-white text-sm">
+                플랜 업그레이드
+              </Button>
+            </Link>
+          )}
+        </CardContent>
+      </Card>
+
       <Card>
         <CardContent className="p-6">
           <h3 className="text-sm font-bold text-slate-800 mb-4">바로가기</h3>
@@ -117,13 +238,6 @@ export default function SettingsPage() {
             >
               <Bell size={16} className="text-slate-400" />
               <span className="text-sm text-slate-600">알림 설정</span>
-            </Link>
-            <Link
-              href="/billing/success"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-50 transition-colors"
-            >
-              <CreditCard size={16} className="text-slate-400" />
-              <span className="text-sm text-slate-600">구독 관리</span>
             </Link>
             <form action="/api/auth/signout" method="POST">
               <button

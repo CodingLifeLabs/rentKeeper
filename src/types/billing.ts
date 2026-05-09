@@ -31,6 +31,7 @@ export interface Subscription {
   currentPeriodStart: string;
   currentPeriodEnd: string;
   cancelAtPeriodEnd: boolean;
+  graceEndAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -39,7 +40,8 @@ export type SubscriptionStatus =
   | "active"
   | "past_due"
   | "canceled"
-  | "expired";
+  | "expired"
+  | "refunded";
 
 export interface SubscriptionInsert {
   landlordId: string;

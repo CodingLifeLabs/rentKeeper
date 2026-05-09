@@ -1,5 +1,9 @@
 import { createServerSupabaseClient } from "./supabase-server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Landlord } from "@/types/landlord";
+import type { Database } from "@/types/database";
+
+type DbClient = SupabaseClient<Database>;
 
 export async function getLandlordByUserId(userId: string): Promise<Landlord | null> {
   const supabase = await createServerSupabaseClient();
@@ -8,6 +12,27 @@ export async function getLandlordByUserId(userId: string): Promise<Landlord | nu
     .select("*")
     .eq("user_id", userId)
     .single();
+
+  if (error || !data) return null;
+  return {
+    id: data.id,
+    userId: data.user_id,
+    name: data.name,
+    phone: data.phone,
+    createdAt: data.created_at,
+  };
+}
+
+export async function getLandlordById(
+  id: string,
+  client?: DbClient,
+): Promise<Landlord | null> {
+  const supabase = client ?? (await createServerSupabaseClient() as DbClient);
+  const { data, error } = await supabase
+    .from("landlords")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
 
   if (error || !data) return null;
   return {
